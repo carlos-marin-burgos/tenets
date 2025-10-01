@@ -774,34 +774,12 @@
                         console.error("Analysis error:", message.error);
                         break;
                     case 'ai-explanation-complete':
-                        alert("🎉 AI EXPLANATION MESSAGE RECEIVED!"); // DEBUG
                         console.log("📨 Received ai-explanation-complete:", message.data);
-                        console.log("🔍 AI Complete - Full message:", message);
-                        console.log("🔍 AI Complete - Message.data:", message.data);
-                        console.log("🔍 AI Complete - Result index:", message.data ? message.data.resultIndex : 'undefined');
-                        console.log("🔍 AI Complete - Explanation:", message.data ? message.data.explanation : 'undefined');
-
-                        // Add visual debugging - flash the page title
-                        const pageTitle = document.querySelector('h1');
-                        if (pageTitle) {
-                            const originalBg = pageTitle.style.background;
-                            pageTitle.style.background = '#667eea';
-                            setTimeout(() => { pageTitle.style.background = originalBg; }, 500);
-                        }
-
-                        // Check DOM state right when message is received
-                        const availableDivsAtReceive = document.querySelectorAll('[id*="ai-explanation"]');
-                        console.log(`🔍 DOM Check at message receive: ${availableDivsAtReceive.length} explanation divs exist`);
-                        availableDivsAtReceive.forEach((div, idx) => {
-                            console.log(`  ${idx}: ID="${div.id}"`);
-                        });
 
                         if (window.showAIExplanation) {
-                            console.log("✅ Calling showAIExplanation...");
                             showAIExplanation(message.data.resultIndex, message.data.explanation);
                         } else {
                             console.log("⚠️ showAIExplanation not available yet, storing for later");
-                            alert("⚠️ showAIExplanation function not found!");
                             window.pendingAIExplanation = message.data;
                         }
                         break;
@@ -1073,117 +1051,70 @@
             }
 
             function showAIExplanation(resultIndex, explanation) {
-                alert("🎯 showAIExplanation called! Index: " + resultIndex); // DEBUG
                 console.log("🎯 showAIExplanation called with:", { resultIndex, explanation });
-                console.log("🔍 resultIndex type:", typeof resultIndex, "value:", resultIndex);
 
                 // Handle test case
                 if (resultIndex === -1) {
                     console.log("🧪 AI Test Result:", explanation);
-                    alert(`🤖 AI Test Successful!\n\nExplanation: ${explanation.explanation}\n\nThe AI service is working correctly!`);
                     return;
                 }
 
                 // Ensure resultIndex is a string for consistency
                 const indexStr = String(resultIndex);
-                console.log("🔄 Converted resultIndex to string:", indexStr);
+                console.log("🔍 Looking for result index:", indexStr);
 
-                const explanationDiv = document.getElementById(`ai-explanation-${indexStr}`);
+                // Find button first - it's more reliable
                 const button = document.querySelector(`[data-result-index="${indexStr}"]`);
+                console.log("🔍 Button found:", !!button);
 
-                alert(`🔍 Found div: ${!!explanationDiv}, Found button: ${!!button}`); // DEBUG
+                if (!button) {
+                    console.error("❌ Button not found for index:", indexStr);
+                    console.log("📋 Available buttons:", document.querySelectorAll('[data-result-index]').length);
+                    return;
+                }
 
-                // Debug: Log detailed information about what we're looking for and what exists
-                console.log("🔍 Looking for explanation div with ID:", `ai-explanation-${indexStr}`);
-                console.log("🔍 Looking for button with data-result-index:", indexStr);
+                // Find the explanation div within the same result item
+                const resultItem = button.closest('.result-item');
+                console.log("🔍 Result item found:", !!resultItem);
+                
+                if (!resultItem) {
+                    console.error("❌ Result item not found");
+                    return;
+                }
 
-                // List all ai-explanation divs that exist
-                const allExplanationDivs = document.querySelectorAll('[id*="ai-explanation"]');
-                console.log("📋 All ai-explanation divs found:", allExplanationDivs.length);
-                allExplanationDivs.forEach((div, idx) => {
-                    console.log(`  ${idx}: ID="${div.id}", exists=${!!div}`);
-                });
+                const explanationDiv = resultItem.querySelector('.ai-explanation');
+                console.log("🔍 Explanation div found:", !!explanationDiv);
+                console.log("🔍 Explanation div ID:", explanationDiv ? explanationDiv.id : 'none');
 
-                // List all buttons with data-result-index
-                const allButtons = document.querySelectorAll('[data-result-index]');
-                console.log("📋 All buttons with data-result-index:", allButtons.length);
-                allButtons.forEach((btn, idx) => {
-                    console.log(`  ${idx}: data-result-index="${btn.getAttribute('data-result-index')}"`);
-                });
-
-                // Try alternative search methods if direct lookup fails
                 if (!explanationDiv) {
-                    console.warn("⚠️ Direct ID lookup failed, trying alternative methods...");
-
-                    // Try finding by partial ID match
-                    const allDivs = document.querySelectorAll('div[id*="ai-explanation"]');
-                    console.log("🔍 Alternative search - divs with 'ai-explanation' in ID:", allDivs.length);
-
-                    // Try finding the explanation div within the same result item as the button
-                    if (button) {
-                        const resultItem = button.closest('.result-item');
-                        if (resultItem) {
-                            const explanationInItem = resultItem.querySelector('.ai-explanation');
-                            console.log("🔍 Found explanation div in same result item:", !!explanationInItem);
-                            if (explanationInItem) {
-                                console.log("🔄 Using explanation div from result item, ID:", explanationInItem.id);
-                                // Update our reference to use the found div
-                                const foundExplanationDiv = explanationInItem;
-
-                                // Continue with the found div
-                                if (foundExplanationDiv && explanation) {
-                                    console.log("✅ Using found explanation div for result index:", indexStr);
-                                    showExplanationContent(foundExplanationDiv, explanation, button, indexStr);
-                                    return;
-                                }
-                            }
-                        }
-                    }
+                    console.error("❌ Explanation div not found in result item");
+                    console.log("📋 Available explanation divs:", document.querySelectorAll('.ai-explanation').length);
+                    return;
                 }
 
                 // Clear timeout if it exists
-                if (button && button.dataset.timeoutId) {
+                if (button.dataset.timeoutId) {
                     clearTimeout(parseInt(button.dataset.timeoutId));
                     delete button.dataset.timeoutId;
-                    console.log("🧹 Cleared timeout for result index:", indexStr);
                 }
 
-                console.log("🔍 Found elements:", {
-                    explanationDiv: explanationDiv ? 'FOUND' : 'NOT FOUND',
-                    explanationDivId: explanationDiv ? explanationDiv.id : 'none',
-                    button: button ? 'FOUND' : 'NOT FOUND',
-                    resultIndex: indexStr,
-                    resultIndexType: typeof indexStr
-                });
-
-                if (explanationDiv && explanation) {
-                    showExplanationContent(explanationDiv, explanation, button, indexStr);
-                } else {
-                    console.error("❌ Explanation div not found! Available divs:");
-                    const allDivs = document.querySelectorAll('[id*="ai-explanation"]');
-                    console.log(`📋 Total explanation divs found: ${allDivs.length}`);
-                    allDivs.forEach(div => console.log("📋 Found div:", div.id));
-
-                    // Additional debugging
-                    console.log("🔍 Additional DOM state debugging:");
-                    console.log("  - Results container exists:", !!document.getElementById('results'));
-                    console.log("  - All divs with 'ai-explanation' class:", document.querySelectorAll('.ai-explanation').length);
-                    console.log("  - All divs with ID containing 'ai':", document.querySelectorAll('[id*="ai"]').length);
-                    console.log("  - Current searching for ID:", `ai-explanation-${indexStr}`);
-                    console.log("  - Explanation object:", explanation ? "EXISTS" : "NULL");
-                }
+                console.log("✅ All elements found, calling showExplanationContent...");
+                // Show the explanation
+                showExplanationContent(explanationDiv, explanation, button, indexStr);
             }
 
             function showExplanationContent(explanationDiv, explanation, button, resultIndex) {
-                alert("✨ showExplanationContent called! Will now display explanation"); // DEBUG
                 console.log("✅ Showing AI explanation for result index:", resultIndex);
+                console.log("🔍 Explanation div:", explanationDiv);
+                console.log("🔍 Explanation data:", explanation);
+                console.log("🔍 Current display style:", explanationDiv.style.display);
 
                 // Clear any existing content first to prevent duplicates
                 explanationDiv.innerHTML = '';
 
                 // Add the new explanation content
                 explanationDiv.innerHTML = `
-                    <div class="ai-explanation-content" style="padding: 16px; background: rgba(102, 126, 234, 0.15); border-radius: 8px;">
+                    <div class="ai-explanation-content" style="padding: 16px; background: rgba(102, 126, 234, 0.15); border-radius: 8px; border: 2px solid #667eea; margin-top: 12px;">
                         <h5 style="color: #667eea; margin-bottom: 12px; font-size: 14px;">🤖 AI Insights</h5>
                         <div class="ai-explanation-text" style="margin-bottom: 12px; line-height: 1.5; color: rgba(255, 255, 255, 0.9);">
                             ${explanation.explanation || 'No explanation provided'}
@@ -1201,10 +1132,16 @@
                         </div>
                     </div>
                 `;
+                
+                // Force display with multiple methods
                 explanationDiv.style.display = 'block';
                 explanationDiv.style.visibility = 'visible';
                 explanationDiv.style.opacity = '1';
-                console.log("✅ AI explanation div populated and made visible");
+                explanationDiv.style.height = 'auto';
+                explanationDiv.style.overflow = 'visible';
+                
+                console.log("✅ Explanation HTML set, innerHTML length:", explanationDiv.innerHTML.length);
+                console.log("✅ After setting display:", explanationDiv.style.display);
 
                 // Update button state - prevent further clicks
                 if (button) {
@@ -1212,11 +1149,7 @@
                     button.disabled = true;
                     button.style.opacity = '0.7';
                     button.style.cursor = 'not-allowed';
-                    console.log("✅ Button updated to explained state and disabled");
-                } else {
-                    console.error("❌ Button not found for result index:", resultIndex);
-                    const allButtons = document.querySelectorAll('.ai-explain-btn');
-                    console.log("📋 Available buttons:", allButtons.length);
+                    console.log("✅ Button updated to 'AI Explained' state");
                 }
             }
 

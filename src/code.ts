@@ -7,8 +7,9 @@ import uiHtml from "./ui.html";
 console.log("🚀 Plugin is starting...");
 console.log("📦 UI HTML length:", uiHtml.length);
 
-// Initialize AI service
+// Initialize AI service (will use fallback explanations if no API key is provided)
 const aiService = new AIExplanationService();
+console.log("🤖 AI Service initialized, configured:", aiService.isConfigured());
 
 figma.showUI(uiHtml, {
   width: 800,
