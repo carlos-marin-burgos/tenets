@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Tenets & Traps Analyzer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.9);
+            background:
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%),
+                linear-gradient(135deg, #0f0c29 0%, #24243e 50%, #313862 100%);
+            padding: 12px;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.01) 0%, transparent 20%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.01) 0%, transparent 20%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.02) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .liquid-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(20px);
+            opacity: 0.3;
+            animation: float 15s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .orb-1 {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            top: 15%;
+            right: 15%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            bottom: 25%;
+            left: 20%;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(20px, -20px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-15px, 15px) rotate(240deg);
+            }
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 24px);
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            padding: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .header:hover::before {
+            opacity: 1;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .header h1 {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.8),
+                0 2px 4px rgba(0, 0, 0, 0.6),
+                0 0 8px rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            position: relative;
+            z-index: 1;
+        }
+
+        .reference-link {
+            font-size: 11px;
+            color: #90caf9;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(30, 136, 229, 0.1));
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .reference-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .reference-link:hover::before {
+            left: 100%;
+        }
+
+        .reference-link:hover {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.3), rgba(30, 136, 229, 0.2));
+            border-color: rgba(33, 150, 243, 0.5);
+            color: #64b5f6;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+            pointer-events: none;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.8), rgba(30, 136, 229, 0.6));
+            color: rgba(255, 255, 255, 0.95);
+            border-color: rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.9), rgba(30, 136, 229, 0.7));
+            border-color: rgba(33, 150, 243, 0.6);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-loading {
+            pointer-events: none;
+        }
+
+        .btn-loading .btn-text {
+            opacity: 0.6;
+        }
+
+        .btn-loading .btn-spinner {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            border: 1px solid currentColor;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            display: block;
+        }
+
+        .btn-spinner {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 32px;
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+            text-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.8),
+                0 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--figma-color-border);
+            border-radius: 50%;
+            border-top-color: var(--figma-color-bg-brand);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .scrollable {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .results-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+
+        .summary {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .summary:hover::before {
+            opacity: 1;
+        }
+
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .result-item {
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .result-item:hover::before {
+            opacity: 1;
+        }
+
+        .result-item:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .result-item.error {
+            border-left: 4px solid #ff6b6b;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(255, 255, 255, 0.05));
+        }
+
+        .result-item.warning {
+            border-left: 4px solid #ffa726;
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.15), rgba(255, 255, 255, 0.05));
+        }
+
+        .result-item.info {
+            border-left: 4px solid #42a5f5;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.15), rgba(255, 255, 255, 0.05));
+        }
+
+        .ai-explain-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .ai-explain-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-explain-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-explanation {
+            margin-top: 12px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            border-radius: 8px;
+            border: 2px solid rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-explanation-content h5 {
+            margin: 0 0 8px 0;
+            color: #667eea;
+            font-size: 12px;
+        }
+
+        .ai-explanation-text {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .ai-suggestions {
+            margin: 8px 0;
+        }
+
+        .ai-suggestions ul {
+            margin: 4px 0;
+            padding-left: 16px;
+        }
+
+        .ai-suggestions li {
+            margin: 2px 0;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .ai-impact {
+            margin-top: 8px;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: rgba(255, 255, 255, 0.7);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            margin: 20px 0;
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .empty-state::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .empty-state:hover::before {
+            opacity: 1;
+        }
+
+        .empty-state-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .reference-info {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reference-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .reference-info h2 {
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .reference-info p {
+            margin-bottom: 12px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        .reference-info ul {
+            margin: 10px 0 10px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .reference-info li {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .reference-info strong {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .reference-info em {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .summary-content h3 {
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .stat-value.good {
+            color: #4caf50;
+        }
+
+        .stat-value.warning {
+            color: #ff9800;
+        }
+
+        .stat-value.error {
+            color: #f44336;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .result-header h4 {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1rem;
+            margin: 0;
+            flex: 1;
+        }
+
+        .result-status {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .result-status.passed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .result-status.failed {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .result-status.warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .result-details {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+
+        .result-details p {
+            margin-bottom: 8px;
+        }
+
+        .result-details strong {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .recommendations {
+            margin-top: 12px;
+            padding-left: 16px;
+        }
+
+        .recommendations li {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="liquid-orb orb-1"></div>
+    <div class="liquid-orb orb-2"></div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <h1>UI Tenets & Traps Analyzer</h1>
+                </div>
+                <a href="#" id="reference-link" class="reference-link">
+                    📚 Reference
+                </a>
+            </div>
+            <p>Analyze your wireframes against UI design best practices</p>
+        </div>
+
+        <div class="controls">
+            <button type="button" id="analyze-selection" class="btn btn-primary">
+                <span class="btn-text">Analyze Selection</span>
+                <span class="btn-spinner"></span>
+            </button>
+            <button type="button" id="analyze-page" class="btn">
+                <span class="btn-text">Analyze Page</span>
+                <span class="btn-spinner"></span>
+            </button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div>
+                <span class="spinner"></span>
+                Analyzing your design...
+            </div>
+        </div>
+
+        <div class="scrollable">
+            <div id="results-container" class="results-container hidden">
+                <div id="summary" class="summary hidden"></div>
+                <div id="results-list" class="results-list"></div>
+            </div>
+            <div id="empty-state" class="empty-state">
+                <div class="empty-state-icon">🎨</div>
+                <div>Select elements or analyze the entire page to get started</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log("🎯 UI script loading...");
+
+        // Message handler from plugin - MUST be outside DOMContentLoaded for immediate availability
+        window.addEventListener('message', (event) => {
+            const message = event.data.pluginMessage || event.data;
+            console.log("📨 Received message:", message);
+            console.log("📨 Message type:", message?.type);
+
+            if (message && message.type) {
+                console.log("✅ Processing message type:", message.type);
+                switch (message.type) {
+                    case 'analysis-started':
+                        const loadingEl = document.getElementById('loading');
+                        if (loadingEl) loadingEl.style.display = 'block';
+                        const emptyStateEl = document.getElementById('empty-state');
+                        if (emptyStateEl) emptyStateEl.style.display = 'none';
+                        break;
+                    case 'analysis-complete':
+                        const loadingEl2 = document.getElementById('loading');
+                        if (loadingEl2) loadingEl2.style.display = 'none';
+                        // Store the data for when DOM is ready
+                        window.pendingResults = message.data;
+                        if (document.readyState === 'complete' && window.showResults) {
+                            showResults(message.data);
+                        }
+                        break;
+                    case 'analysis-error':
+                        const loadingEl3 = document.getElementById('loading');
+                        if (loadingEl3) loadingEl3.style.display = 'none';
+                        console.error("Analysis error:", message.error);
+                        break;
+                    case 'ai-explanation-complete':
+                        alert("🎉 AI EXPLANATION MESSAGE RECEIVED!"); // DEBUG
+                        console.log("📨 Received ai-explanation-complete:", message.data);
+                        console.log("🔍 AI Complete - Full message:", message);
+                        console.log("🔍 AI Complete - Message.data:", message.data);
+                        console.log("🔍 AI Complete - Result index:", message.data ? message.data.resultIndex : 'undefined');
+                        console.log("🔍 AI Complete - Explanation:", message.data ? message.data.explanation : 'undefined');
+
+                        // Add visual debugging - flash the page title
+                        const pageTitle = document.querySelector('h1');
+                        if (pageTitle) {
+                            const originalBg = pageTitle.style.background;
+                            pageTitle.style.background = '#667eea';
+                            setTimeout(() => { pageTitle.style.background = originalBg; }, 500);
+                        }
+
+                        // Check DOM state right when message is received
+                        const availableDivsAtReceive = document.querySelectorAll('[id*="ai-explanation"]');
+                        console.log(`🔍 DOM Check at message receive: ${availableDivsAtReceive.length} explanation divs exist`);
+                        availableDivsAtReceive.forEach((div, idx) => {
+                            console.log(`  ${idx}: ID="${div.id}"`);
+                        });
+
+                        if (window.showAIExplanation) {
+                            console.log("✅ Calling showAIExplanation...");
+                            showAIExplanation(message.data.resultIndex, message.data.explanation);
+                        } else {
+                            console.log("⚠️ showAIExplanation not available yet, storing for later");
+                            alert("⚠️ showAIExplanation function not found!");
+                            window.pendingAIExplanation = message.data;
+                        }
+                        break;
+                    case 'ai-explanation-error':
+                        console.log("📨 Received ai-explanation-error:", message.data);
+                        const errorResultIndex = message.data ? message.data.resultIndex : null;
+                        if (window.handleAIExplanationError) {
+                            handleAIExplanationError(message.data ? message.data.error : 'Unknown error', errorResultIndex);
+                        }
+                        break;
+                    default:
+                        console.log("⚠️ Unknown message type received:", message.type);
+                        console.log("⚠️ Full unknown message:", message);
+                        break;
+                }
+            }
+        });
+
+        // Test message handler immediately
+        console.log("🧪 Testing message handler...");
+        window.postMessage({ pluginMessage: { type: 'test-message', data: 'test' } }, '*');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("✅ DOM ready, setting up UI...");
+
+            const pageBtn = document.getElementById('analyze-page');
+            const selectionBtn = document.getElementById('analyze-selection');
+            const loading = document.getElementById('loading');
+            const resultsContainer = document.getElementById('results-container');
+            const emptyState = document.getElementById('empty-state');
+
+            // Button click handlers
+            if (pageBtn) {
+                pageBtn.addEventListener('click', () => {
+                    console.log("📄 Analyze page clicked");
+                    showLoading();
+                    if (parent && parent !== window) {
+                        parent.postMessage({ pluginMessage: { type: 'analyze-page' } }, '*');
+                    }
+                });
+            }
+
+            if (selectionBtn) {
+                selectionBtn.addEventListener('click', () => {
+                    console.log("🔍 Analyze selection clicked");
+                    showLoading();
+                    if (parent && parent !== window) {
+                        parent.postMessage({ pluginMessage: { type: 'analyze-selection' } }, '*');
+                    }
+                });
+            }
+
+            // Reference link handler
+            const referenceLink = document.getElementById('reference-link');
+            if (referenceLink) {
+                referenceLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log("📚 Reference link clicked");
+                    if (parent && parent !== window) {
+                        parent.postMessage({ pluginMessage: { type: 'open-reference' } }, '*');
+                    }
+                });
+            }
+
+            // Check for pending results from messages received before DOM was ready
+            if (window.pendingResults) {
+                showResults(window.pendingResults);
+                window.pendingResults = null;
+            }
+
+            // Check for pending AI explanation
+            if (window.pendingAIExplanation) {
+                showAIExplanation(window.pendingAIExplanation.resultIndex, window.pendingAIExplanation.explanation);
+                window.pendingAIExplanation = null;
+            }
+
+            function showLoading() {
+                console.log("🔄 Showing loading...");
+                if (loading) loading.style.display = 'block';
+                if (resultsContainer) resultsContainer.style.display = 'none';
+                if (emptyState) emptyState.style.display = 'none';
+            }
+
+            function hideLoading() {
+                console.log("⏹️ Hiding loading...");
+                if (loading) loading.style.display = 'none';
+            }
+
+            function showResults(data) {
+                console.log("📊 Showing results:", data);
+                console.log("🔍 Results container:", resultsContainer);
+                console.log("🔍 Results container exists:", !!resultsContainer);
+                console.log("🔍 Data.results:", data.results);
+                console.log("🔍 Data.results length:", data.results ? data.results.length : 'null/undefined');
+                console.log("🔍 Data.results type:", typeof data.results);
+
+                if (!resultsContainer) {
+                    console.error("❌ Results container not found!");
+                    return;
+                }
+
+                // Display real analysis results
+                resultsContainer.style.display = 'block';
+
+                // Generate summary HTML
+                const summaryHtml = `
+                    <div class="summary">
+                        <h3>📊 Analysis Complete</h3>
+                        <p>Found ${data.results ? data.results.length : 0} results</p>
+                    </div>
+                `;
+
+                // Generate results HTML from actual data
+                const resultsHtml = (data.results || []).map((result, index) => {
+                    const statusClass = result.status === 'failed' ? 'error' : result.status === 'warning' ? 'warning' : 'info';
+                    const recommendationsHtml = result.recommendations && result.recommendations.length > 0 ?
+                        `<ul class="recommendations">${result.recommendations.map(rec => `<li>${rec}</li>`).join('')}</ul>` : '';
+
+                    return `
+                        <div class="result-item ${statusClass}" data-result-index="${index}">
+                            <div class="result-header">
+                                <h4>${result.tenetTitle || 'Unknown Issue'}</h4>
+                                <span class="result-status ${result.status || 'info'}">${result.status || 'info'}</span>
+                            </div>
+                            <div class="result-details">
+                                <p><strong>${result.nodeName || 'Unknown Element'}</strong> (${result.nodeType || 'Element'}): ${result.message || 'No message'}</p>
+                                ${recommendationsHtml}
+                                <button class="ai-explain-btn" data-result-index="${index}">
+                                    🤖 AI Explain
+                                </button>
+                                <div class="ai-explanation" id="ai-explanation-${index}" style="display: none;">
+                                    <!-- AI explanation will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                resultsContainer.innerHTML = summaryHtml + `<div class="results">${resultsHtml}</div>`;
+
+                // Debug: Log the generated HTML to see what we actually created
+                console.log("🔍 Generated HTML length:", resultsContainer.innerHTML.length);
+                console.log("🔍 Results data length:", (data.results || []).length);
+
+                // Verify divs were actually created
+                const createdExplanationDivs = resultsContainer.querySelectorAll('[id*="ai-explanation"]');
+                console.log("🔍 Created explanation divs:", createdExplanationDivs.length);
+                createdExplanationDivs.forEach((div, idx) => {
+                    console.log(`  Created div ${idx}: ID="${div.id}"`);
+                });
+
+                // Add event listeners to AI explain buttons
+                const aiButtons = resultsContainer.querySelectorAll('.ai-explain-btn');
+                console.log(`🔗 Adding click listeners to ${aiButtons.length} AI buttons`);
+
+                aiButtons.forEach(button => {
+                    button.addEventListener('click', handleAIExplainClick);
+                });
+
+                if (emptyState) emptyState.style.display = 'none';
+                console.log("✅ Real results displayed successfully");
+
+                // Verify the elements were created
+                const createdButton = resultsContainer.querySelector('.ai-explain-btn');
+                const createdDiv = resultsContainer.querySelector('#ai-explanation-0');
+                console.log("� Test button created:", !!createdButton);
+                console.log("🔍 Test explanation div created:", !!createdDiv);
+
+                if (createdButton) {
+                    console.log("🔗 Adding click listener to test button");
+                    createdButton.addEventListener('click', handleAIExplainClick);
+                }
+
+                if (emptyState) emptyState.style.display = 'none';
+            } function handleAIExplainClick(event) {
+                console.log("🤖 AI Explain button clicked");
+                const button = event.target;
+                const resultIndex = button.getAttribute('data-result-index');
+                const explanationDiv = document.getElementById(`ai-explanation-${resultIndex}`);
+
+                // Prevent multiple clicks on the same button
+                if (button.disabled || button.textContent.includes('Loading') || button.textContent.includes('Explained')) {
+                    console.log("🚫 Button already processing or completed, ignoring click");
+                    return;
+                }
+
+                console.log("🔍 Button click details:", {
+                    resultIndex,
+                    resultIndexType: typeof resultIndex,
+                    explanationDiv: !!explanationDiv,
+                    buttonElement: button,
+                    buttonText: button.textContent,
+                    expectedDivId: `ai-explanation-${resultIndex}`
+                });
+
+                // Show loading state immediately
+                button.textContent = '🤖 Loading...';
+                button.disabled = true;
+                button.style.opacity = '0.7';
+
+                // Set a timeout for the request
+                const timeoutId = setTimeout(() => {
+                    console.warn("⏰ AI explanation request timed out");
+                    handleAIExplanationError("Request timed out", resultIndex);
+                }, 10000); // 10 second timeout
+
+                // Store timeout ID on button for cleanup
+                button.dataset.timeoutId = timeoutId;
+
+                // Get the violation data from the results
+                const resultItem = button.closest('.result-item');
+                if (!resultItem) {
+                    console.error("❌ Could not find result item for button");
+                    clearTimeout(timeoutId);
+                    handleAIExplanationError("Could not find result item", resultIndex);
+                    return;
+                }
+
+                console.log("🔍 Result item found:", resultItem);
+
+                const titleElement = resultItem.querySelector('h4');
+                const detailsElement = resultItem.querySelector('.result-details p');
+                const strongElement = resultItem.querySelector('strong');
+
+                console.log("🔍 Elements found:", {
+                    titleElement: !!titleElement,
+                    detailsElement: !!detailsElement,
+                    strongElement: !!strongElement
+                });
+
+                if (!titleElement || !detailsElement || !strongElement) {
+                    console.error("❌ Could not find required elements in result item");
+                    console.log("Available elements in result item:", {
+                        h4s: resultItem.querySelectorAll('h4').length,
+                        ps: resultItem.querySelectorAll('p').length,
+                        strongs: resultItem.querySelectorAll('strong').length
+                    });
+                    clearTimeout(timeoutId);
+                    handleAIExplanationError("Could not parse result data", resultIndex);
+                    return;
+                }
+
+                const violation = {
+                    tenetTitle: titleElement.textContent,
+                    message: detailsElement.textContent,
+                    nodeName: strongElement.textContent,
+                    nodeType: 'UI Element', // Could be enhanced to get actual type
+                    category: 'Design',
+                    severity: resultItem.classList.contains('error') ? 'error' : 'warning'
+                };
+
+                console.log("📋 Violation data extracted:", violation);
+                console.log("📤 Sending AI explanation request:", { violation, resultIndex });
+
+                // Send request to plugin
+                if (parent && parent !== window) {
+                    parent.postMessage({
+                        pluginMessage: {
+                            type: 'get-ai-explanation',
+                            data: { violation, resultIndex }
+                        }
+                    }, '*');
+                    console.log("✅ Message sent to parent window");
+                } else {
+                    console.error("❌ No parent window found for messaging");
+                    clearTimeout(timeoutId);
+                    handleAIExplanationError("No parent window found", resultIndex);
+                }
+            }
+
+            function showAIExplanation(resultIndex, explanation) {
+                alert("🎯 showAIExplanation called! Index: " + resultIndex); // DEBUG
+                console.log("🎯 showAIExplanation called with:", { resultIndex, explanation });
+                console.log("🔍 resultIndex type:", typeof resultIndex, "value:", resultIndex);
+
+                // Handle test case
+                if (resultIndex === -1) {
+                    console.log("🧪 AI Test Result:", explanation);
+                    alert(`🤖 AI Test Successful!\n\nExplanation: ${explanation.explanation}\n\nThe AI service is working correctly!`);
+                    return;
+                }
+
+                // Ensure resultIndex is a string for consistency
+                const indexStr = String(resultIndex);
+                console.log("🔄 Converted resultIndex to string:", indexStr);
+
+                const explanationDiv = document.getElementById(`ai-explanation-${indexStr}`);
+                const button = document.querySelector(`[data-result-index="${indexStr}"]`);
+
+                alert(`🔍 Found div: ${!!explanationDiv}, Found button: ${!!button}`); // DEBUG
+
+                // Debug: Log detailed information about what we're looking for and what exists
+                console.log("🔍 Looking for explanation div with ID:", `ai-explanation-${indexStr}`);
+                console.log("🔍 Looking for button with data-result-index:", indexStr);
+
+                // List all ai-explanation divs that exist
+                const allExplanationDivs = document.querySelectorAll('[id*="ai-explanation"]');
+                console.log("📋 All ai-explanation divs found:", allExplanationDivs.length);
+                allExplanationDivs.forEach((div, idx) => {
+                    console.log(`  ${idx}: ID="${div.id}", exists=${!!div}`);
+                });
+
+                // List all buttons with data-result-index
+                const allButtons = document.querySelectorAll('[data-result-index]');
+                console.log("📋 All buttons with data-result-index:", allButtons.length);
+                allButtons.forEach((btn, idx) => {
+                    console.log(`  ${idx}: data-result-index="${btn.getAttribute('data-result-index')}"`);
+                });
+
+                // Try alternative search methods if direct lookup fails
+                if (!explanationDiv) {
+                    console.warn("⚠️ Direct ID lookup failed, trying alternative methods...");
+
+                    // Try finding by partial ID match
+                    const allDivs = document.querySelectorAll('div[id*="ai-explanation"]');
+                    console.log("🔍 Alternative search - divs with 'ai-explanation' in ID:", allDivs.length);
+
+                    // Try finding the explanation div within the same result item as the button
+                    if (button) {
+                        const resultItem = button.closest('.result-item');
+                        if (resultItem) {
+                            const explanationInItem = resultItem.querySelector('.ai-explanation');
+                            console.log("🔍 Found explanation div in same result item:", !!explanationInItem);
+                            if (explanationInItem) {
+                                console.log("🔄 Using explanation div from result item, ID:", explanationInItem.id);
+                                // Update our reference to use the found div
+                                const foundExplanationDiv = explanationInItem;
+
+                                // Continue with the found div
+                                if (foundExplanationDiv && explanation) {
+                                    console.log("✅ Using found explanation div for result index:", indexStr);
+                                    showExplanationContent(foundExplanationDiv, explanation, button, indexStr);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Clear timeout if it exists
+                if (button && button.dataset.timeoutId) {
+                    clearTimeout(parseInt(button.dataset.timeoutId));
+                    delete button.dataset.timeoutId;
+                    console.log("🧹 Cleared timeout for result index:", indexStr);
+                }
+
+                console.log("🔍 Found elements:", {
+                    explanationDiv: explanationDiv ? 'FOUND' : 'NOT FOUND',
+                    explanationDivId: explanationDiv ? explanationDiv.id : 'none',
+                    button: button ? 'FOUND' : 'NOT FOUND',
+                    resultIndex: indexStr,
+                    resultIndexType: typeof indexStr
+                });
+
+                if (explanationDiv && explanation) {
+                    showExplanationContent(explanationDiv, explanation, button, indexStr);
+                } else {
+                    console.error("❌ Explanation div not found! Available divs:");
+                    const allDivs = document.querySelectorAll('[id*="ai-explanation"]');
+                    console.log(`📋 Total explanation divs found: ${allDivs.length}`);
+                    allDivs.forEach(div => console.log("📋 Found div:", div.id));
+
+                    // Additional debugging
+                    console.log("🔍 Additional DOM state debugging:");
+                    console.log("  - Results container exists:", !!document.getElementById('results'));
+                    console.log("  - All divs with 'ai-explanation' class:", document.querySelectorAll('.ai-explanation').length);
+                    console.log("  - All divs with ID containing 'ai':", document.querySelectorAll('[id*="ai"]').length);
+                    console.log("  - Current searching for ID:", `ai-explanation-${indexStr}`);
+                    console.log("  - Explanation object:", explanation ? "EXISTS" : "NULL");
+                }
+            }
+
+            function showExplanationContent(explanationDiv, explanation, button, resultIndex) {
+                alert("✨ showExplanationContent called! Will now display explanation"); // DEBUG
+                console.log("✅ Showing AI explanation for result index:", resultIndex);
+
+                // Clear any existing content first to prevent duplicates
+                explanationDiv.innerHTML = '';
+
+                // Add the new explanation content
+                explanationDiv.innerHTML = `
+                    <div class="ai-explanation-content" style="padding: 16px; background: rgba(102, 126, 234, 0.15); border-radius: 8px;">
+                        <h5 style="color: #667eea; margin-bottom: 12px; font-size: 14px;">🤖 AI Insights</h5>
+                        <div class="ai-explanation-text" style="margin-bottom: 12px; line-height: 1.5; color: rgba(255, 255, 255, 0.9);">
+                            ${explanation.explanation || 'No explanation provided'}
+                        </div>
+                        ${explanation.suggestions && explanation.suggestions.length > 0 ? `
+                            <div class="ai-suggestions" style="margin: 12px 0;">
+                                <strong style="color: #667eea;">💡 Suggestions:</strong>
+                                <ul style="margin: 8px 0; padding-left: 20px;">
+                                    ${explanation.suggestions.map(suggestion => `<li style="margin: 4px 0; color: rgba(255, 255, 255, 0.8);">${suggestion}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        <div class="ai-impact" style="margin-top: 12px; font-style: italic; color: rgba(255, 255, 255, 0.7);">
+                            <strong>⚠️ Impact:</strong> ${explanation.impact || 'Impact assessment unavailable'}
+                        </div>
+                    </div>
+                `;
+                explanationDiv.style.display = 'block';
+                explanationDiv.style.visibility = 'visible';
+                explanationDiv.style.opacity = '1';
+                console.log("✅ AI explanation div populated and made visible");
+
+                // Update button state - prevent further clicks
+                if (button) {
+                    button.textContent = '✅ AI Explained';
+                    button.disabled = true;
+                    button.style.opacity = '0.7';
+                    button.style.cursor = 'not-allowed';
+                    console.log("✅ Button updated to explained state and disabled");
+                } else {
+                    console.error("❌ Button not found for result index:", resultIndex);
+                    const allButtons = document.querySelectorAll('.ai-explain-btn');
+                    console.log("📋 Available buttons:", allButtons.length);
+                }
+            }
+
+            function handleAIExplanationError(error, resultIndex = null) {
+                console.error("AI explanation error:", error);
+
+                if (resultIndex !== null) {
+                    // Target specific button if we know the result index
+                    const specificButton = document.querySelector(`[data-result-index="${resultIndex}"]`);
+                    if (specificButton) {
+                        // Clear timeout if it exists
+                        if (specificButton.dataset.timeoutId) {
+                            clearTimeout(parseInt(specificButton.dataset.timeoutId));
+                            delete specificButton.dataset.timeoutId;
+                        }
+
+                        specificButton.textContent = '❌ Failed - Retry?';
+                        specificButton.disabled = false;
+                        specificButton.style.opacity = '1';
+                        specificButton.style.cursor = 'pointer';
+                        console.log(`✅ Reset specific button for result index: ${resultIndex}`);
+                        return;
+                    }
+                }
+
+                // Fallback: reset all disabled buttons
+                const disabledButtons = document.querySelectorAll('.ai-explain-btn[disabled]');
+                console.log(`🔧 Resetting ${disabledButtons.length} disabled AI buttons`);
+
+                disabledButtons.forEach(button => {
+                    // Clear timeout if it exists
+                    if (button.dataset.timeoutId) {
+                        clearTimeout(parseInt(button.dataset.timeoutId));
+                        delete button.dataset.timeoutId;
+                    }
+
+                    button.textContent = '❌ Failed - Retry?';
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                    button.style.cursor = 'pointer';
+                });
+
+                // Show error notification
+                console.log("AI explanation failed:", error);
+
+                // Add a temporary visual feedback
+                setTimeout(() => {
+                    document.querySelectorAll('.ai-explain-btn').forEach(btn => {
+                        if (btn.textContent === '❌ Failed - Retry?') {
+                            btn.textContent = '🤖 AI Explain';
+                        }
+                    });
+                }, 5000); // Reset to normal after 5 seconds
+            } function showError(error) {
+                console.log("❌ Showing error:", error);
+                if (resultsContainer) {
+                    resultsContainer.style.display = 'block';
+                    resultsContainer.innerHTML = `<div class="error">Error: ${error}</div>`;
+                }
+                if (emptyState) emptyState.style.display = 'none';
+            }
+
+            function showReferenceGuide(message) {
+                console.log("📚 Showing reference guide:", message);
+                if (resultsContainer) {
+                    resultsContainer.style.display = 'block';
+                    resultsContainer.innerHTML = `
+                        <div class="reference-guide">
+                            <h3>📚 UI Tenets & Traps Reference</h3>
+                            <p>${message}</p>
+                            <div class="reference-info">
+                                <h4>Complete Reference Includes:</h4>
+                                <ul>
+                                    <li><strong>8 UI Tenets</strong> - Best practices to follow</li>
+                                    <li><strong>6 UI Traps</strong> - Common mistakes to avoid</li>
+                                    <li><strong>7 Categories</strong> - Accessibility, Usability, Visual Hierarchy, etc.</li>
+                                </ul>
+                                <p><em>This feature will open the full interactive reference guide in the published version.</em></p>
+                            </div>
+                        </div>
+                    `;
+                }
+                if (emptyState) emptyState.style.display = 'none';
+            }
+
+            // Expose functions to window for message handler
+            window.showResults = showResults;
+            window.showAIExplanation = showAIExplanation;
+            window.handleAIExplanationError = handleAIExplanationError;
+
+            console.log("✅ UI setup complete!");
+
+            // Check if there are pending results to display
+            if (window.pendingResults) {
+                console.log("📦 Processing pending results...");
+                showResults(window.pendingResults);
+                window.pendingResults = null;
+            }
+
+            // Test message handler
+            console.log("🧪 Testing message handler...");
+            window.postMessage({ pluginMessage: { type: 'test-message', data: 'test' } }, '*');
+        });
+    </script>
+</body>
+
+</html>

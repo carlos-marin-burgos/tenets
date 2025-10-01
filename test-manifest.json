@@ -1,0 +1,10 @@
+{
+  "name": "Test Plugin",
+  "id": "123456789",
+  "api": "1.0.0",
+  "main": "test-figma-minimal.js",
+  "ui": "test-simple.html",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "permissions": []
+}

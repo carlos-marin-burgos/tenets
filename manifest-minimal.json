@@ -1,0 +1,8 @@
+{
+  "name": "Minimal Test",
+  "id": "minimal-test-123",
+  "api": "1.0.0",
+  "main": "test-minimal.js",
+  "capabilities": [],
+  "enableProposedApi": false
+}

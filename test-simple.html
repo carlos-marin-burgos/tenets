@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple Test</title>
+</head>
+
+<body>
+    <h1>Original Title</h1>
+    <button id="test-btn">Test Button</button>
+
+    <script>
+        // Most basic test possible
+        console.log("🔥 Basic script starting");
+
+        // Change title immediately
+        document.querySelector('h1').textContent = "✅ JAVASCRIPT WORKS!";
+        document.querySelector('h1').style.color = "green";
+
+        // Add button handler
+        document.getElementById('test-btn').addEventListener('click', function () {
+            alert('Button clicked!');
+        });
+
+        console.log("🔥 Basic script completed");
+    </script>
+</body>
+
+</html>

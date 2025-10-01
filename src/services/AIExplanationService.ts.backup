@@ -1,0 +1,274 @@
+/**
+ * AI Service for generating human-friendly design insights
+ * Integrates with OpenAI to provide contextual explanations for UI violations
+ */
+
+interface AIExplanationRequest {
+  violation: {
+    tenetTitle: string;
+    message: string;
+    nodeName: string;
+    nodeType: string;
+    category: string;
+    severity: string;
+  };
+  designContext?: {
+    pageType?: string;
+    componentContext?: string;
+    userJourney?: string;
+  };
+}
+
+interface AIExplanationResponse {
+  explanation: string;
+  suggestions: string[];
+  impact: string;
+  examples?: string[];
+}
+
+export class AIExplanationService {
+  private apiKey: string;
+  private baseURL = "https://api.openai.com/v1/chat/completions";
+
+  constructor(apiKey?: string) {
+    // In a real implementation, you'd get this from environment variables
+    // For now, we'll make it configurable
+    this.apiKey = apiKey || "";
+
+    // Log environment info for debugging
+    console.log("🤖 AIExplanationService initialized");
+    console.log(
+      "🌐 Environment check - fetch available:",
+      typeof fetch !== "undefined"
+    );
+  }
+
+  async getAIExplanation(
+    request: AIExplanationRequest
+  ): Promise<AIExplanationResponse> {
+    // Always use fallback for now since fetch might not be available in Figma
+    // In a production plugin, you'd implement this through the UI iframe
+    return this.getFallbackExplanation(request);
+
+    /* TODO: Implement proper AI integration
+    if (!this.apiKey) {
+      return this.getFallbackExplanation(request);
+    }
+
+    try {
+      // Check if fetch is available (it might not be in Figma plugin context)
+      if (typeof fetch === 'undefined') {
+        console.warn('Fetch API not available, using fallback explanation');
+        return this.getFallbackExplanation(request);
+      }
+
+      const prompt = this.buildPrompt(request);
+
+      const response = await fetch(this.baseURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini", // More cost-effective for this use case
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a UX/UI design expert helping designers improve their interfaces. Provide clear, actionable advice in a friendly, educational tone.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          max_tokens: 300,
+          temperature: 0.7,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices[0]?.message?.content;
+
+      return this.parseAIResponse(content);
+    } catch (error) {
+      console.error("AI explanation failed:", error);
+      return this.getFallbackExplanation(request);
+    }
+    */
+  }
+
+  private buildPrompt(request: AIExplanationRequest): string {
+    const { violation, designContext } = request;
+
+    return `
+Analyze this UI design issue and provide helpful guidance:
+
+**Issue Details:**
+- Problem: ${violation.message}
+- Element: ${violation.nodeName} (${violation.nodeType})
+- Category: ${violation.category}
+- Severity: ${violation.severity}
+- Design Principle: ${violation.tenetTitle}
+
+**Context:**
+${
+  designContext
+    ? `
+- Page Type: ${designContext.pageType || "Unknown"}
+- Component Context: ${designContext.componentContext || "General UI element"}
+- User Journey: ${designContext.userJourney || "Not specified"}
+`
+    : "No additional context provided"
+}
+
+Please provide:
+1. **WHY** this matters for users (in 1-2 sentences)
+2. **HOW** to fix it (2-3 specific suggestions)
+3. **IMPACT** if left unfixed (1 sentence)
+
+Keep it conversational, actionable, and focused on user benefit.
+    `.trim();
+  }
+
+  private parseAIResponse(content: string): AIExplanationResponse {
+    // Simple parsing - in production you might want more robust parsing
+    const lines = content.split("\n").filter((line) => line.trim());
+
+    return {
+      explanation: content,
+      suggestions: [
+        "Check color contrast ratios",
+        "Test with accessibility tools",
+        "Consider user context and needs",
+      ],
+      impact: "Users may have difficulty interacting with this element",
+      examples: [],
+    };
+  }
+
+  private getFallbackExplanation(
+    request: AIExplanationRequest
+  ): AIExplanationResponse {
+    const { violation } = request;
+
+    // Provide helpful fallback explanations when AI is not available
+    const fallbacks: Record<string, AIExplanationResponse> = {
+      contrast: {
+        explanation:
+          "This text doesn't have enough contrast against its background, making it difficult for users to read, especially those with visual impairments or in bright lighting conditions.",
+        suggestions: [
+          "Use darker text colors or lighter backgrounds",
+          "Test contrast ratios with tools like WebAIM Contrast Checker",
+          "Aim for at least 4.5:1 contrast ratio for normal text",
+        ],
+        impact:
+          "Users with visual impairments or in bright environments may not be able to read this content",
+        examples: [
+          "Use #000000 text on #ffffff background",
+          "Add a semi-transparent overlay behind text",
+        ],
+      },
+      "touch-target": {
+        explanation:
+          "This interactive element is smaller than recommended for touch interfaces, making it difficult for users to tap accurately, especially on mobile devices.",
+        suggestions: [
+          "Increase button size to at least 44x44px",
+          "Add more padding around clickable areas",
+          "Ensure adequate spacing between interactive elements",
+        ],
+        impact:
+          "Users may accidentally tap wrong elements or struggle to interact with your interface",
+        examples: [
+          "Make buttons at least 44px tall",
+          "Add 8px spacing between buttons",
+        ],
+      },
+      focus: {
+        explanation:
+          "Interactive elements need clear focus indicators for users navigating with keyboards or assistive technologies.",
+        suggestions: [
+          "Add visible focus rings or outlines",
+          "Use high contrast colors for focus states",
+          "Test keyboard navigation flow",
+        ],
+        impact:
+          "Keyboard users may not know which element has focus, making navigation difficult",
+        examples: [
+          "Add a 2px blue outline on focus",
+          "Use box-shadow for focus indicators",
+        ],
+      },
+      text: {
+        explanation:
+          "Text that's too small can be difficult to read, especially for users with visual impairments or on mobile devices.",
+        suggestions: [
+          "Use at least 16px for body text",
+          "Ensure text scales properly on mobile",
+          "Test readability at different zoom levels",
+        ],
+        impact:
+          "Users may strain to read small text or be unable to read it entirely",
+        examples: [
+          "Set body text to 16px or larger",
+          "Use relative units like rem or em",
+        ],
+      },
+      navigation: {
+        explanation:
+          "Clear navigation structure helps users understand where they are and how to get to other sections of your interface.",
+        suggestions: [
+          "Use consistent navigation patterns",
+          "Provide clear visual hierarchy",
+          "Include breadcrumbs for deep navigation",
+        ],
+        impact:
+          "Users may get lost or confused about how to navigate your interface",
+        examples: [
+          "Add a persistent main navigation",
+          "Use consistent button placement",
+        ],
+      },
+    };
+
+    // Try to match by category or keywords
+    const key = Object.keys(fallbacks).find(
+      (k) =>
+        violation.message.toLowerCase().includes(k) ||
+        violation.tenetTitle.toLowerCase().includes(k)
+    );
+
+    const defaultFallback = {
+      explanation: `The "${violation.tenetTitle}" principle helps ensure your design is user-friendly. ${violation.message}`,
+      suggestions: [
+        "Review the specific design principle guidelines",
+        "Test your design with real users",
+        "Consider accessibility and usability standards",
+      ],
+      impact: "This issue may impact user experience and accessibility",
+      examples: [],
+    };
+
+    const result = (key ? fallbacks[key] : null) || defaultFallback;
+
+    console.log(
+      `🤖 Generated fallback explanation for: ${violation.tenetTitle}`
+    );
+    return result;
+  }
+
+  // Helper method to check if AI is configured
+  isConfigured(): boolean {
+    return !!this.apiKey;
+  }
+
+  // Method to configure API key after initialization
+  configure(apiKey: string): void {
+    this.apiKey = apiKey;
+  }
+}

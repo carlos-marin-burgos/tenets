@@ -1,0 +1,14 @@
+{
+  "name": "UI Tenets & Traps Analyzer",
+  "id": "ui-tenets-analyzer-v2",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": ["figma", "figjam"],
+  "networkAccess": {
+    "allowedDomains": ["https://models.github.ai"]
+  },
+  "permissions": ["currentuser"]
+}

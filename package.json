@@ -1,0 +1,28 @@
+{
+  "name": "ui-tenets-analyzer",
+  "version": "1.0.0",
+  "description": "Figma plugin to analyze wireframes against UI tenets and traps",
+  "main": "code.js",
+  "scripts": {
+    "prebuild": "node generate-reference.js",
+    "build": "npx webpack --mode=production && node inline-ui-script.js",
+    "build:watch": "npx webpack --mode=development --watch",
+    "dev": "npx webpack --mode=development && node inline-ui-script.js",
+    "dev-pure": "npx webpack --mode=development --entry.ui ./src/code.ts --entry.code ./src/code.ts && cp dist/code.js dist/ && node direct-inject.js",
+    "pure": "node direct-inject.js"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.90.0",
+    "@types/node": "^20.0.0",
+    "copy-webpack-plugin": "^13.0.1",
+    "dotenv": "^17.2.3",
+    "html-loader": "^4.2.0",
+    "html-webpack-inline-source-plugin": "^1.0.0-beta.2",
+    "html-webpack-plugin": "^5.5.0",
+    "raw-loader": "^4.0.2",
+    "ts-loader": "^9.4.0",
+    "typescript": "^5.0.0",
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.0"
+  }
+}

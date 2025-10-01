@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Tenets & Traps Reference Guide</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .tenet-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tenet-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .tenet-description {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .tenet-category {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .severity-error {
+            background: #e74c3c;
+        }
+
+        .severity-warning {
+            background: #f39c12;
+        }
+
+        .severity-info {
+            background: #3498db;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📚 UI Tenets & Traps Reference Guide</h1>
+
+        <div id="tenets-container">
+            <!-- TENETS_DATA_START -->
+            <p>Loading tenets data...</p>
+            <!-- TENETS_DATA_END -->
+        </div>
+    </div>
+
+    <script>
+        // TENETS_SCRIPT_START
+        const ALL_TENETS = [
+  {
+    "id": "contrast-ratio",
+    "title": "Sufficient Color Contrast",
+    "description": "Text and background colors must have sufficient contrast ratio (4.5:1 for normal text, 3:1 for large text)",
+    "category": {
+      "id": "accessibility",
+      "name": "Accessibility",
+      "description": "Ensure designs are usable by people with disabilities",
+      "color": "#4CAF50",
+      "icon": "♿"
+    },
+    "type": "tenet",
+    "severity": "error",
+    "examples": [
+      "Use dark text on light backgrounds",
+      "Ensure button text is readable against button background"
+    ],
+    "recommendations": [
+      "Use color contrast checking tools",
+      "Test with users who have visual impairments",
+      "Provide alternative ways to convey information beyond color"
+    ]
+  },
+  {
+    "id": "focus-indicators",
+    "title": "Visible Focus Indicators",
+    "description": "Interactive elements must have clear focus indicators for keyboard navigation",
+    "category": {
+      "id": "accessibility",
+      "name": "Accessibility",
+      "description": "Ensure designs are usable by people with disabilities",
+      "color": "#4CAF50",
+      "icon": "♿"
+    },
+    "type": "tenet",
+    "severity": "error",
+    "examples": [
+      "Outline or border around focused buttons",
+      "Highlighted state for focused form fields"
+    ],
+    "recommendations": [
+      "Design custom focus styles that match your brand",
+      "Ensure focus indicators are visible against all backgrounds",
+      "Test keyboard navigation flow"
+    ]
+  },
+  {
+    "id": "alt-text-planning",
+    "title": "Alt Text Consideration",
+    "description": "Images and icons should have alternative text descriptions planned",
+    "category": {
+      "id": "accessibility",
+      "name": "Accessibility",
+      "description": "Ensure designs are usable by people with disabilities",
+      "color": "#4CAF50",
+      "icon": "♿"
+    },
+    "type": "tenet",
+    "severity": "warning",
+    "examples": [
+      "Descriptive text for informational images",
+      "Empty alt text for decorative images"
+    ],
+    "recommendations": []
+  },
+  {
+    "id": "button-recognition",
+    "title": "Recognizable Interactive Elements",
+    "description": "Buttons and links should look clickable/tappable",
+    "category": {
+      "id": "usability",
+      "name": "Usability",
+      "description": "Create intuitive and user-friendly interfaces",
+      "color": "#2196F3",
+      "icon": "👆"
+    },
+    "type": "tenet",
+    "severity": "error",
+    "examples": [
+      "Buttons with clear borders or backgrounds",
+      "Links with underlines or distinctive styling",
+      "Hover states that indicate interactivity"
+    ],
+    "recommendations": []
+  },
+  {
+    "id": "form-clarity",
+    "title": "Clear Form Design",
+    "description": "Forms should have clear labels, validation, and error messages",
+    "category": {
+      "id": "usability",
+      "name": "Usability",
+      "description": "Create intuitive and user-friendly interfaces",
+      "color": "#2196F3",
+      "icon": "👆"
+    },
+    "type": "tenet",
+    "severity": "error",
+    "examples": [
+      "Labels clearly associated with inputs",
+      "Required field indicators",
+      "Inline validation feedback"
+    ],
+    "recommendations": []
+  },
+  {
+    "id": "visual-weight-distribution",
+    "title": "Balanced Visual Weight",
+    "description": "Important elements should have appropriate visual prominence",
+    "category": {
+      "id": "visual-hierarchy",
+      "name": "Visual Hierarchy",
+      "description": "Guide user attention through proper visual structure",
+      "color": "#FF9800",
+      "icon": "📐"
+    },
+    "type": "tenet",
+    "severity": "warning",
+    "examples": [
+      "Primary actions more prominent than secondary",
+      "Important content larger or bolder",
+      "Proper use of whitespace"
+    ],
+    "recommendations": []
+  },
+  {
+    "id": "spacing-consistency",
+    "title": "Consistent Spacing System",
+    "description": "Use a consistent spacing scale throughout the design",
+    "category": {
+      "id": "consistency",
+      "name": "Consistency",
+      "description": "Maintain consistent patterns and behaviors",
+      "color": "#9C27B0",
+      "icon": "🔄"
+    },
+    "type": "tenet",
+    "severity": "warning",
+    "examples": [
+      "8px grid system (8, 16, 24, 32)",
+      "Consistent margins and padding",
+      "Uniform gap between elements"
+    ],
+    "recommendations": []
+  },
+  {
+    "id": "responsive-considerations",
+    "title": "Responsive Design Planning",
+    "description": "Consider how the design will adapt to different screen sizes",
+    "category": {
+      "id": "layout",
+      "name": "Layout & Spacing",
+      "description": "Organize content with proper spacing and alignment",
+      "color": "#607D8B",
+      "icon": "📏"
+    },
+    "type": "tenet",
+    "severity": "warning",
+    "examples": [
+      "Mobile-first approach",
+      "Flexible grid systems",
+      "Scalable typography"
+    ],
+    "recommendations": []
+  },
+  {
+    "id": "low-contrast-trap",
+    "title": "Low Contrast Text",
+    "description": "Avoid using text with insufficient contrast against backgrounds",
+    "category": {
+      "id": "accessibility",
+      "name": "Accessibility",
+      "description": "Ensure designs are usable by people with disabilities",
+      "color": "#4CAF50",
+      "icon": "♿"
+    },
+    "type": "trap",
+    "severity": "error",
+    "examples": [
+      "Light gray text on white background",
+      "Color-only information indicators"
+    ],
+    "recommendations": [
+      "Use darker text colors",
+      "Add icons or patterns alongside color coding",
+      "Test with accessibility tools"
+    ]
+  },
+  {
+    "id": "tiny-text-trap",
+    "title": "Text Too Small",
+    "description": "Avoid text smaller than 16px for body text (14px minimum)",
+    "category": {
+      "id": "accessibility",
+      "name": "Accessibility",
+      "description": "Ensure designs are usable by people with disabilities",
+      "color": "#4CAF50",
+      "icon": "♿"
+    },
+    "type": "trap",
+    "severity": "error",
+    "examples": [
+      "12px body text",
+      "10px labels"
+    ],
+    "recommendations": [
+      "Use 16px or larger for body text",
+      "Ensure text is readable on mobile devices",
+      "Consider users with visual impairments"
+    ]
+  },
+  {
+    "id": "fake-buttons-trap",
+    "title": "Non-Interactive Elements That Look Clickable",
+    "description": "Avoid styling non-interactive elements to look like buttons",
+    "category": {
+      "id": "usability",
+      "name": "Usability",
+      "description": "Create intuitive and user-friendly interfaces",
+      "color": "#2196F3",
+      "icon": "👆"
+    },
+    "type": "trap",
+    "severity": "error",
+    "examples": [
+      "Styled text that looks like buttons",
+      "Cards with button-like styling but no action"
+    ],
+    "recommendations": [
+      "Only style interactive elements as buttons",
+      "Use clear visual distinctions for different element types",
+      "Add hover states to interactive elements"
+    ]
+  },
+  {
+    "id": "hidden-actions-trap",
+    "title": "Critical Actions Hidden in Menus",
+    "description": "Avoid hiding important actions in overflow menus or secondary locations",
+    "category": {
+      "id": "usability",
+      "name": "Usability",
+      "description": "Create intuitive and user-friendly interfaces",
+      "color": "#2196F3",
+      "icon": "👆"
+    },
+    "type": "trap",
+    "severity": "warning",
+    "examples": [
+      "Delete button only in dropdown menu",
+      "Primary CTA in hamburger menu"
+    ],
+    "recommendations": [
+      "Make important actions visible and accessible",
+      "Use progressive disclosure appropriately",
+      "Prioritize actions based on user needs"
+    ]
+  },
+  {
+    "id": "inconsistent-navigation-trap",
+    "title": "Inconsistent Navigation Patterns",
+    "description": "Avoid changing navigation structure between similar pages",
+    "category": {
+      "id": "consistency",
+      "name": "Consistency",
+      "description": "Maintain consistent patterns and behaviors",
+      "color": "#9C27B0",
+      "icon": "🔄"
+    },
+    "type": "trap",
+    "severity": "error",
+    "examples": [
+      "Different menu structures on similar pages",
+      "Inconsistent button placement",
+      "Varying interaction patterns"
+    ],
+    "recommendations": [
+      "Establish consistent navigation patterns",
+      "Use design system components",
+      "Document navigation guidelines"
+    ]
+  },
+  {
+    "id": "overcrowded-interface-trap",
+    "title": "Overcrowded Interface",
+    "description": "Avoid cramming too many elements without adequate spacing",
+    "category": {
+      "id": "layout",
+      "name": "Layout & Spacing",
+      "description": "Organize content with proper spacing and alignment",
+      "color": "#607D8B",
+      "icon": "📏"
+    },
+    "type": "trap",
+    "severity": "warning",
+    "examples": [
+      "No whitespace between elements",
+      "Too many actions in one area",
+      "Dense information without grouping"
+    ],
+    "recommendations": [
+      "Use whitespace effectively",
+      "Group related elements",
+      "Prioritize most important content"
+    ]
+  }
+];
+        // TENETS_SCRIPT_END
+
+        function renderTenets() {
+            const container = document.getElementById('tenets-container');
+            if (ALL_TENETS.length === 0) {
+                container.innerHTML = '<p>No tenets data available.</p>';
+                return;
+            }
+
+            container.innerHTML = ALL_TENETS.map(tenet => `
+                <div class="tenet-card">
+                    <div class="tenet-category severity-${tenet.severity}">
+                        ${tenet.category.name} - ${tenet.type.toUpperCase()}
+                    </div>
+                    <div class="tenet-title">${tenet.title}</div>
+                    <div class="tenet-description">${tenet.description}</div>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', renderTenets);
+    </script>
+</body>
+
+</html>
