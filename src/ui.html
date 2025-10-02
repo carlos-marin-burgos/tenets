@@ -1076,7 +1076,7 @@
                 // Find the explanation div within the same result item
                 const resultItem = button.closest('.result-item');
                 console.log("🔍 Result item found:", !!resultItem);
-                
+
                 if (!resultItem) {
                     console.error("❌ Result item not found");
                     return;
@@ -1132,14 +1132,14 @@
                         </div>
                     </div>
                 `;
-                
+
                 // Force display with multiple methods
                 explanationDiv.style.display = 'block';
                 explanationDiv.style.visibility = 'visible';
                 explanationDiv.style.opacity = '1';
                 explanationDiv.style.height = 'auto';
                 explanationDiv.style.overflow = 'visible';
-                
+
                 console.log("✅ Explanation HTML set, innerHTML length:", explanationDiv.innerHTML.length);
                 console.log("✅ After setting display:", explanationDiv.style.display);
 
