@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Icon Generator</title>
+</head>
+<body>
+    <div id="svg-container"></div>
+    <canvas id="canvas" width="128" height="128" style="display:none;"></canvas>
+    
+    <script>
+        // Insert SVG
+        document.getElementById('svg-container').innerHTML = "<svg width=\"128\" height=\"128\" viewBox=\"0 0 128 128\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n  <!-- Deep blue gradient background (matching your plugin theme) -->\n  <rect width=\"128\" height=\"128\" rx=\"24\" fill=\"url(#gradient)\"/>\n  \n  <!-- Gradient definition -->\n  <defs>\n    <linearGradient id=\"gradient\" x1=\"0\" y1=\"0\" x2=\"128\" y2=\"128\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"0%\" style=\"stop-color:#0a1628;stop-opacity:1\" />\n      <stop offset=\"50%\" style=\"stop-color:#1e3a5f;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#2d5a88;stop-opacity:1\" />\n    </linearGradient>\n    <linearGradient id=\"spark\" x1=\"0\" y1=\"0\" x2=\"100\" y2=\"100\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"0%\" style=\"stop-color:#a78bfa;stop-opacity:1\" />\n      <stop offset=\"100%\" style=\"stop-color:#3b82f6;stop-opacity:1\" />\n    </linearGradient>\n  </defs>\n  \n  <!-- UI Frame/Document icon -->\n  <rect x=\"32\" y=\"28\" width=\"64\" height=\"72\" rx=\"6\" fill=\"none\" stroke=\"#3b82f6\" stroke-width=\"3\" opacity=\"0.6\"/>\n  \n  <!-- Three horizontal lines representing UI elements -->\n  <rect x=\"40\" y=\"40\" width=\"32\" height=\"4\" rx=\"2\" fill=\"#3b82f6\" opacity=\"0.5\"/>\n  <rect x=\"40\" y=\"52\" width=\"48\" height=\"4\" rx=\"2\" fill=\"#3b82f6\" opacity=\"0.5\"/>\n  <rect x=\"40\" y=\"64\" width=\"40\" height=\"4\" rx=\"2\" fill=\"#3b82f6\" opacity=\"0.5\"/>\n  \n  <!-- Checkmark/verification icon -->\n  <circle cx=\"76\" cy=\"52\" r=\"10\" fill=\"#10b981\" opacity=\"0.9\"/>\n  <path d=\"M72 52 L75 55 L80 49\" stroke=\"white\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n  \n  <!-- AI Sparkle/Star icon (top right) -->\n  <g transform=\"translate(88, 32)\">\n    <circle cx=\"0\" cy=\"0\" r=\"3\" fill=\"url(#spark)\"/>\n    <path d=\"M 0 -8 L 0 8 M -8 0 L 8 0\" stroke=\"url(#spark)\" stroke-width=\"2\" stroke-linecap=\"round\" opacity=\"0.8\"/>\n    <path d=\"M -5.5 -5.5 L 5.5 5.5 M 5.5 -5.5 L -5.5 5.5\" stroke=\"url(#spark)\" stroke-width=\"1.5\" stroke-linecap=\"round\" opacity=\"0.6\"/>\n  </g>\n  \n  <!-- Code brackets icon (bottom) -->\n  <g transform=\"translate(64, 84)\" opacity=\"0.8\">\n    <path d=\"M -12 -8 L -16 -4 L -16 4 L -12 8\" stroke=\"#a78bfa\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n    <path d=\"M 12 -8 L 16 -4 L 16 4 L 12 8\" stroke=\"#a78bfa\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n    <circle cx=\"0\" cy=\"0\" r=\"2\" fill=\"#a78bfa\"/>\n  </g>\n  \n  <!-- Subtle glow effect -->\n  <circle cx=\"64\" cy=\"64\" r=\"40\" fill=\"url(#spark)\" opacity=\"0.05\"/>\n</svg>\n";
+        
+        // Wait for SVG to render
+        setTimeout(() => {
+            const svg = document.querySelector('svg');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Serialize SVG to data URL
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            // Create image and draw to canvas
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+                
+                // Convert canvas to PNG and download
+                canvas.toBlob(function(blob) {
+                    const link = document.createElement('a');
+                    link.download = 'icon-128.png';
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    
+                    console.log('✅ Icon generated! Check your downloads folder.');
+                }, 'image/png');
+                
+                URL.revokeObjectURL(url);
+            };
+            img.src = url;
+        }, 100);
+    </script>
+</body>
+</html>
