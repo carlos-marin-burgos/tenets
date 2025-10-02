@@ -1,9 +1,10 @@
 {
   "name": "UI Tenets & Traps Analyzer",
-  "id": "ui-tenets-analyzer-v2",
+  "id": "1555612473565404534",
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
+  "documentAccess": "dynamic-page",
   "capabilities": [],
   "enableProposedApi": false,
   "editorType": ["figma", "figjam"],
