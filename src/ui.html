@@ -426,18 +426,36 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 12px;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-explain-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .ai-explain-btn:hover::before {
+            left: 100%;
         }
 
         .ai-explain-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
         }
 
         .ai-explain-btn:disabled {
@@ -447,18 +465,66 @@
         }
 
         .ai-explanation {
-            margin-top: 12px;
-            padding: 12px;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
-            border-radius: 8px;
-            border: 2px solid rgba(102, 126, 234, 0.4);
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            margin-top: 16px;
+            padding: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.25));
+            border-radius: 12px;
+            border: 2px solid rgba(102, 126, 234, 0.6);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            position: relative;
+            overflow: hidden;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .ai-explanation.show {
+            display: block !important;
+        }
+
+        .ai-explanation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .ai-explanation-content {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2));
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
         }
 
         .ai-explanation-content h5 {
-            margin: 0 0 8px 0;
-            color: #667eea;
-            font-size: 12px;
+            color: #a78bfa;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-explanation-content h5::before {
+            content: '✨';
+            font-size: 16px;
         }
 
         .ai-explanation-text {
@@ -720,6 +786,10 @@
                 <span class="btn-text">Analyze Page</span>
                 <span class="btn-spinner"></span>
             </button>
+            <button type="button" id="test-ai" class="btn"
+                style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                <span class="btn-text">🧪 Test AI</span>
+            </button>
         </div>
 
         <div id="loading" class="loading">
@@ -844,6 +914,45 @@
                 });
             }
 
+            // Test AI button handler
+            const testAIBtn = document.getElementById('test-ai');
+            if (testAIBtn) {
+                testAIBtn.addEventListener('click', () => {
+                    console.log("🧪 Test AI clicked - sending direct test");
+                    // Simulate a test result first
+                    const testResults = {
+                        results: [{
+                            tenetTitle: "Test Violation",
+                            message: "This is a test violation to check if AI explanation works",
+                            nodeName: "Test Element",
+                            nodeType: "TEXT",
+                            status: "warning",
+                            recommendations: ["Test recommendation 1", "Test recommendation 2"]
+                        }],
+                        summary: { total: 1, passed: 0, violations: 1, score: 0 }
+                    };
+
+                    showResults(testResults);
+
+                    // After showResults completes and DOM is updated, trigger the AI explanation
+                    setTimeout(() => {
+                        console.log("🧪 Triggering test AI explanation...");
+                        const testExplanation = {
+                            explanation: "This is a test explanation to verify the AI system is working correctly. The purple container and colored sections should be visible.",
+                            suggestions: [
+                                "First test suggestion for fixing the issue",
+                                "Second test suggestion with more details",
+                                "Third test suggestion for completeness"
+                            ],
+                            impact: "This test demonstrates that the AI explanation system is functioning properly and displaying content correctly."
+                        };
+
+                        // Call showAIExplanation which will get a fresh reference to the DOM element
+                        showAIExplanation(0, testExplanation);
+                    }, 100); // Reduced to 100ms since we just need DOM to update
+                });
+            }
+
             // Check for pending results from messages received before DOM was ready
             if (window.pendingResults) {
                 showResults(window.pendingResults);
@@ -869,7 +978,17 @@
             }
 
             function showResults(data) {
-                console.log("📊 Showing results:", data);
+                // Track how many times this is called
+                window.showResultsCallCount = (window.showResultsCallCount || 0) + 1;
+
+                // Don't regenerate HTML if an explanation is currently being shown
+                if (window.aiExplanationActive) {
+                    console.warn("⚠️ Skipping showResults - AI explanation is active");
+                    return;
+                }
+
+                console.log(`📊 Showing results (call #${window.showResultsCallCount}):`, data);
+                console.trace("🔍 STACK TRACE: showResults called from:");
                 console.log("🔍 Results container:", resultsContainer);
                 console.log("🔍 Results container exists:", !!resultsContainer);
                 console.log("🔍 Data.results:", data.results);
@@ -910,7 +1029,7 @@
                                 <button class="ai-explain-btn" data-result-index="${index}">
                                     🤖 AI Explain
                                 </button>
-                                <div class="ai-explanation" id="ai-explanation-${index}" style="display: none;">
+                                <div class="ai-explanation" id="ai-explanation-${index}">
                                     <!-- AI explanation will be populated here -->
                                 </div>
                             </div>
@@ -918,6 +1037,9 @@
                     `;
                 }).join('');
 
+                // Set innerHTML - THIS DESTROYS ALL CHILD ELEMENTS
+                console.log("🚨🚨🚨 ABOUT TO SET innerHTML - ALL CHILD ELEMENTS WILL BE DESTROYED");
+                console.trace("🔍 Called from:");
                 resultsContainer.innerHTML = summaryHtml + `<div class="results">${resultsHtml}</div>`;
 
                 // Debug: Log the generated HTML to see what we actually created
@@ -1085,6 +1207,19 @@
                 const explanationDiv = resultItem.querySelector('.ai-explanation');
                 console.log("🔍 Explanation div found:", !!explanationDiv);
                 console.log("🔍 Explanation div ID:", explanationDiv ? explanationDiv.id : 'none');
+                console.log("🔍 Explanation div in DOM?", explanationDiv ? document.body.contains(explanationDiv) : 'N/A');
+                console.log("🔍 Explanation div parent:", explanationDiv ? explanationDiv.parentElement?.className : 'N/A');
+
+                // Log the full parent chain
+                if (explanationDiv) {
+                    let current = explanationDiv;
+                    let chain = [];
+                    while (current && chain.length < 10) {
+                        chain.push(current.className || current.id || current.tagName);
+                        current = current.parentElement;
+                    }
+                    console.log("🔍 Full parent chain:", chain.join(' ← '));
+                }
 
                 if (!explanationDiv) {
                     console.error("❌ Explanation div not found in result item");
@@ -1104,6 +1239,9 @@
             }
 
             function showExplanationContent(explanationDiv, explanation, button, resultIndex) {
+                // Mark that an explanation is being shown - prevent showResults from regenerating HTML
+                window.aiExplanationActive = true;
+
                 console.log("✅ Showing AI explanation for result index:", resultIndex);
                 console.log("🔍 Explanation div:", explanationDiv);
                 console.log("🔍 Explanation data:", explanation);
@@ -1112,36 +1250,219 @@
                 // Clear any existing content first to prevent duplicates
                 explanationDiv.innerHTML = '';
 
-                // Add the new explanation content
+                // Add the new explanation content with clear separation
                 explanationDiv.innerHTML = `
-                    <div class="ai-explanation-content" style="padding: 16px; background: rgba(102, 126, 234, 0.15); border-radius: 8px; border: 2px solid #667eea; margin-top: 12px;">
-                        <h5 style="color: #667eea; margin-bottom: 12px; font-size: 14px;">🤖 AI Insights</h5>
-                        <div class="ai-explanation-text" style="margin-bottom: 12px; line-height: 1.5; color: rgba(255, 255, 255, 0.9);">
-                            ${explanation.explanation || 'No explanation provided'}
+                    <div class="ai-explanation-content">
+                        <h5>🤖 AI Assistant Says</h5>
+                        
+                        <div style="background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #a78bfa;">
+                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                                💬 Explanation
+                            </div>
+                            <div class="ai-explanation-text" style="line-height: 1.6; color: rgba(255, 255, 255, 0.95); font-size: 13px;">
+                                ${explanation.explanation || 'No explanation provided'}
+                            </div>
                         </div>
+                        
                         ${explanation.suggestions && explanation.suggestions.length > 0 ? `
-                            <div class="ai-suggestions" style="margin: 12px 0;">
-                                <strong style="color: #667eea;">💡 Suggestions:</strong>
-                                <ul style="margin: 8px 0; padding-left: 20px;">
-                                    ${explanation.suggestions.map(suggestion => `<li style="margin: 4px 0; color: rgba(255, 255, 255, 0.8);">${suggestion}</li>`).join('')}
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #fbbf24;">
+                                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                                    💡 How to Fix It
+                                </div>
+                                <ul style="margin: 0; padding-left: 20px; list-style-type: '✓ ';">
+                                    ${explanation.suggestions.map(suggestion => `
+                                        <li style="margin: 6px 0; color: rgba(255, 255, 255, 0.9); line-height: 1.5; font-size: 12px;">
+                                            ${suggestion}
+                                        </li>
+                                    `).join('')}
                                 </ul>
                             </div>
                         ` : ''}
-                        <div class="ai-impact" style="margin-top: 12px; font-style: italic; color: rgba(255, 255, 255, 0.7);">
-                            <strong>⚠️ Impact:</strong> ${explanation.impact || 'Impact assessment unavailable'}
+                        
+                        <div style="background: rgba(239, 68, 68, 0.15); padding: 12px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                                ⚠️ Why It Matters
+                            </div>
+                            <div class="ai-impact" style="font-style: italic; color: rgba(255, 255, 255, 0.85); line-height: 1.5; font-size: 12px;">
+                                ${explanation.impact || 'Impact assessment unavailable'}
+                            </div>
                         </div>
                     </div>
                 `;
 
-                // Force display with multiple methods
-                explanationDiv.style.display = 'block';
-                explanationDiv.style.visibility = 'visible';
-                explanationDiv.style.opacity = '1';
-                explanationDiv.style.height = 'auto';
-                explanationDiv.style.overflow = 'visible';
+                // Force display with class and inline styles
+                explanationDiv.classList.add('show');
+                explanationDiv.style.setProperty('display', 'block', 'important');
+                explanationDiv.style.setProperty('visibility', 'visible', 'important');
+                explanationDiv.style.setProperty('opacity', '1', 'important');
+                explanationDiv.style.setProperty('height', 'auto', 'important');
+                explanationDiv.style.setProperty('overflow', 'visible', 'important');
+                explanationDiv.style.setProperty('max-height', 'none', 'important');
+
+                // Also remove any conflicting inline styles
+                explanationDiv.removeAttribute('hidden');
+
+                // Scroll the explanation into view
+                setTimeout(() => {
+                    // Get a FRESH reference to the element in case DOM was recreated
+                    const freshDiv = document.getElementById(explanationDiv.id);
+                    if (freshDiv) {
+                        freshDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        console.log("✅ Scrolled fresh element into view");
+                    } else {
+                        console.error("❌ Could not find fresh element for scrolling");
+                        // Try the old reference anyway
+                        explanationDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 50);
 
                 console.log("✅ Explanation HTML set, innerHTML length:", explanationDiv.innerHTML.length);
                 console.log("✅ After setting display:", explanationDiv.style.display);
+                console.log("✅ Classes:", explanationDiv.className);
+                console.log("✅ Computed display:", window.getComputedStyle(explanationDiv).display);
+                console.log("✅ IMMEDIATELY AFTER SETUP - In DOM?", document.body.contains(explanationDiv));
+                console.log("✅ IMMEDIATELY AFTER SETUP - Parent in DOM?", explanationDiv.parentElement ? document.body.contains(explanationDiv.parentElement) : 'NO PARENT');
+
+                // SYNCHRONOUS check right now
+                console.log("🔬 SYNC CHECK - resultsContainer in DOM?", document.body.contains(resultsContainer));
+                console.log("🔬 SYNC CHECK - resultsContainer ID:", resultsContainer ? resultsContainer.id : 'NONE');
+
+                // Watch the results container for any innerHTML changes
+                const containerObserver = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'childList' && mutation.target === resultsContainer) {
+                            console.error("🚨🚨🚨 RESULTS CONTAINER MODIFIED!");
+                            console.log("🚨 Added nodes:", mutation.addedNodes.length);
+                            console.log("🚨 Removed nodes:", mutation.removedNodes.length);
+                            console.trace("🚨 Modified by:");
+                        }
+                    });
+                });
+
+                containerObserver.observe(resultsContainer, {
+                    childList: true,
+                    subtree: false // Only watch direct children
+                });
+
+                // Watch for any changes to the element that might hide it
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        console.warn("⚠️⚠️⚠️ MUTATION DETECTED!", mutation.type, mutation.attributeName);
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                            console.warn("⚠️ Style changed on explanation div!");
+                            console.log("New display:", explanationDiv.style.display);
+                            console.log("Computed display:", window.getComputedStyle(explanationDiv).display);
+                            // Force it back to visible
+                            if (window.getComputedStyle(explanationDiv).display === 'none') {
+                                console.log("🔧 Force re-showing explanation!");
+                                explanationDiv.style.setProperty('display', 'block', 'important');
+                            }
+                        }
+                    });
+                });
+
+                observer.observe(explanationDiv, {
+                    attributes: true,
+                    attributeFilter: ['style', 'class'],
+                    childList: true,
+                    characterData: true,
+                    subtree: true
+                });
+
+                // Also watch the parent to see if it gets removed
+                const parentObserver = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'childList') {
+                            mutation.removedNodes.forEach((node) => {
+                                if (node.contains && node.contains(explanationDiv)) {
+                                    console.error("🚨🚨🚨 EXPLANATION DIV WAS REMOVED FROM DOM!");
+                                    console.log("Removed by:", mutation.target);
+                                }
+                            });
+                        }
+                    });
+                });
+
+                if (explanationDiv.parentElement) {
+                    parentObserver.observe(explanationDiv.parentElement, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+
+                // Store explanation data for potential re-injection
+                const savedExplanationHTML = explanationDiv.innerHTML;
+                const savedExplanationId = explanationDiv.id;
+
+                // Store globally for persistence across DOM recreations
+                window.activeExplanations = window.activeExplanations || {};
+                window.activeExplanations[savedExplanationId] = {
+                    html: savedExplanationHTML,
+                    resultIndex: resultIndex
+                };
+
+                // Check every 200ms and ensure explanation stays visible
+                let checkCount = 0;
+                const interval = setInterval(() => {
+                    checkCount++;
+
+                    // Query for the element fresh each time - try multiple methods
+                    let currentDiv = document.getElementById(savedExplanationId);
+
+                    // If not found by ID, try from results container
+                    if (!currentDiv) {
+                        const container = document.getElementById('results-container');
+                        if (container) {
+                            currentDiv = container.querySelector(`#${savedExplanationId}`);
+                        }
+                    }
+
+                    // If still not found, scan all .ai-explanation elements
+                    if (!currentDiv) {
+                        const allDivs = document.querySelectorAll('.ai-explanation');
+                        for (const div of allDivs) {
+                            if (div.id === savedExplanationId) {
+                                currentDiv = div;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (currentDiv) {
+                        // Element exists - check if it's visible
+                        const display = window.getComputedStyle(currentDiv).display;
+                        const visibility = window.getComputedStyle(currentDiv).visibility;
+                        const opacity = window.getComputedStyle(currentDiv).opacity;
+                        const hasContent = currentDiv.innerHTML && currentDiv.innerHTML.length > 100;
+
+                        if (display === 'none' || visibility === 'hidden' || opacity === '0' || !hasContent) {
+                            console.warn(`⚠️ Check ${checkCount}: Fixing element...`);
+                            if (!hasContent) currentDiv.innerHTML = savedExplanationHTML;
+                            currentDiv.classList.add('show');
+                            currentDiv.style.setProperty('display', 'block', 'important');
+                            currentDiv.style.setProperty('visibility', 'visible', 'important');
+                            currentDiv.style.setProperty('opacity', '1', 'important');
+                            currentDiv.style.setProperty('height', 'auto', 'important');
+                            currentDiv.style.setProperty('overflow', 'visible', 'important');
+                            console.log(`✅ Check ${checkCount}: Fixed`);
+                        } else {
+                            console.log(`✅ Check ${checkCount}: Visible (${display})`);
+                        }
+                    } else {
+                        console.error(`❌ Check ${checkCount}: Not found`);
+                    }
+
+                    if (checkCount >= 15) { // 15 checks = 3 seconds
+                        clearInterval(interval);
+                        console.log("✅ Monitoring complete");
+                    }
+                }, 200);                // Check after 2 seconds if it's still visible
+                setTimeout(() => {
+                    const stillVisible = window.getComputedStyle(explanationDiv).display !== 'none';
+                    console.log("🕐 After 2 seconds - still visible?", stillVisible);
+                    console.log("🕐 Current display:", window.getComputedStyle(explanationDiv).display);
+                    console.log("🕐 Current innerHTML length:", explanationDiv.innerHTML.length);
+                }, 2000);
 
                 // Update button state - prevent further clicks
                 if (button) {
@@ -1151,9 +1472,7 @@
                     button.style.cursor = 'not-allowed';
                     console.log("✅ Button updated to 'AI Explained' state");
                 }
-            }
-
-            function handleAIExplanationError(error, resultIndex = null) {
+            } function handleAIExplanationError(error, resultIndex = null) {
                 console.error("AI explanation error:", error);
 
                 if (resultIndex !== null) {
