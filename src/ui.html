@@ -18,10 +18,10 @@
             line-height: 1.4;
             color: rgba(255, 255, 255, 0.9);
             background:
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%),
-                linear-gradient(135deg, #0f0c29 0%, #24243e 50%, #313862 100%);
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(96, 165, 250, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(147, 197, 253, 0.15) 0%, transparent 50%),
+                linear-gradient(135deg, #0a1628 0%, #1e3a5f 50%, #2d5a88 100%);
             padding: 12px;
             height: 100vh;
             overflow: hidden;
@@ -56,7 +56,7 @@
         .orb-1 {
             width: 80px;
             height: 80px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            background: linear-gradient(45deg, #3b82f6, #60a5fa);
             top: 15%;
             right: 15%;
             animation-delay: 0s;
@@ -65,7 +65,7 @@
         .orb-2 {
             width: 60px;
             height: 60px;
-            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            background: linear-gradient(45deg, #2563eb, #93c5fd);
             bottom: 25%;
             left: 20%;
             animation-delay: 5s;
@@ -363,6 +363,109 @@
             opacity: 1;
         }
 
+        .filter-controls {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-controls.hidden {
+            display: none;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-select:hover {
+            border-color: rgba(102, 126, 234, 0.5);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: rgba(102, 126, 234, 0.8);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.7), rgba(56, 142, 60, 0.7));
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            border-radius: 8px;
+            padding: 6px 16px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: auto;
+        }
+
+        .export-btn:hover {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 0.9));
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .explain-all-btn {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7));
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 8px;
+            padding: 6px 16px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .explain-all-btn:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .explain-all-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .explain-all-btn .progress-text {
+            font-size: 10px;
+            display: block;
+            margin-top: 2px;
+        }
+
         .results-list {
             display: flex;
             flex-direction: column;
@@ -399,6 +502,12 @@
 
         .result-item:hover::before {
             opacity: 1;
+        }
+
+        .result-item:hover {
+            border-color: rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.3);
         }
 
         .result-item:hover {
@@ -551,6 +660,82 @@
             margin-top: 8px;
             font-style: italic;
             color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* AI Explanation Modal */
+        .ai-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .ai-modal-overlay.show {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid #a78bfa;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        .ai-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+            transition: all 0.2s;
+            z-index: 10001;
+        }
+
+        .ai-modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .empty-state {
@@ -757,6 +942,170 @@
             margin-bottom: 4px;
             font-size: 0.9rem;
         }
+
+        /* Tabs */
+        .tabs-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 0 16px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tab-badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Favorites/Learning Mode */
+        .favorite-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .favorite-btn:hover {
+            color: #fbbf24;
+            transform: scale(1.2);
+        }
+
+        .favorite-btn.favorited {
+            color: #fbbf24;
+        }
+
+        .learning-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .learning-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .learning-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .learning-card-title {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .learning-card-date {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+        }
+
+        .learning-card-content {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 8px 0;
+        }
+
+        .learning-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .learning-empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .learning-search {
+            width: 100%;
+            padding: 10px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .learning-search:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .learning-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .learning-action-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .learning-action-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
     </style>
 </head>
 
@@ -786,10 +1135,6 @@
                 <span class="btn-text">Analyze Page</span>
                 <span class="btn-spinner"></span>
             </button>
-            <button type="button" id="test-ai" class="btn"
-                style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
-                <span class="btn-text">🧪 Test AI</span>
-            </button>
         </div>
 
         <div id="loading" class="loading">
@@ -800,13 +1145,81 @@
         </div>
 
         <div class="scrollable">
-            <div id="results-container" class="results-container hidden">
-                <div id="summary" class="summary hidden"></div>
-                <div id="results-list" class="results-list"></div>
+            <!-- Tabs -->
+            <div id="tabs-container" class="tabs-container hidden">
+                <button class="tab-btn active" data-tab="results" onclick="switchTab('results')">
+                    <span>📊</span>
+                    <span>Analysis Results</span>
+                    <span id="results-badge" class="tab-badge">0</span>
+                </button>
+                <button class="tab-btn" data-tab="learnings" onclick="switchTab('learnings')">
+                    <span>⭐</span>
+                    <span>My Learnings</span>
+                    <span id="learnings-badge" class="tab-badge">0</span>
+                </button>
             </div>
-            <div id="empty-state" class="empty-state">
-                <div class="empty-state-icon">🎨</div>
-                <div>Select elements or analyze the entire page to get started</div>
+
+            <!-- Results Tab -->
+            <div id="results-tab" class="tab-content active">
+                <div id="results-container" class="results-container hidden">
+                    <!-- Filter and Export Controls -->
+                    <div id="filter-controls" class="filter-controls hidden">
+                        <div class="filter-group">
+                            <label for="severity-filter">Severity:</label>
+                            <select id="severity-filter" class="filter-select">
+                                <option value="all">All</option>
+                                <option value="error">Errors</option>
+                                <option value="warning">Warnings</option>
+                                <option value="info">Info</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="category-filter">Category:</label>
+                            <select id="category-filter" class="filter-select">
+                                <option value="all">All Categories</option>
+                            </select>
+                        </div>
+                        <button id="explain-all-btn" class="explain-all-btn">🤖 Explain All</button>
+                        <button id="export-btn" class="export-btn">📋 Export Results</button>
+                    </div>
+
+                    <div id="summary" class="summary hidden"></div>
+                    <div id="results-list" class="results-list"></div>
+                </div>
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-state-icon">🎨</div>
+                    <div>Select elements or analyze the entire page to get started</div>
+                </div>
+            </div>
+
+            <!-- Learnings Tab -->
+            <div id="learnings-tab" class="tab-content">
+                <div style="padding: 16px;">
+                    <div class="learning-actions">
+                        <input type="text" id="learning-search" class="learning-search"
+                            placeholder="🔍 Search your learnings...">
+                        <button id="export-learnings-btn" class="learning-action-btn">📥 Export Learnings</button>
+                        <button id="clear-learnings-btn" class="learning-action-btn"
+                            style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: #ef4444;">🗑️
+                            Clear All</button>
+                    </div>
+                    <div id="learnings-list" class="learnings-list">
+                        <div class="learning-empty">
+                            <div class="learning-empty-icon">⭐</div>
+                            <h3 style="color: rgba(255, 255, 255, 0.7); margin: 0 0 8px 0;">No Learnings Yet</h3>
+                            <p style="margin: 0;">Star AI explanations you find useful to build your knowledge base</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Explanation Modal -->
+        <div id="ai-modal" class="ai-modal-overlay">
+            <div class="ai-modal-content">
+                <button class="ai-modal-close"
+                    onclick="document.getElementById('ai-modal').classList.remove('show')">×</button>
+                <div id="ai-modal-body"></div>
             </div>
         </div>
     </div>
@@ -914,45 +1327,6 @@
                 });
             }
 
-            // Test AI button handler
-            const testAIBtn = document.getElementById('test-ai');
-            if (testAIBtn) {
-                testAIBtn.addEventListener('click', () => {
-                    console.log("🧪 Test AI clicked - sending direct test");
-                    // Simulate a test result first
-                    const testResults = {
-                        results: [{
-                            tenetTitle: "Test Violation",
-                            message: "This is a test violation to check if AI explanation works",
-                            nodeName: "Test Element",
-                            nodeType: "TEXT",
-                            status: "warning",
-                            recommendations: ["Test recommendation 1", "Test recommendation 2"]
-                        }],
-                        summary: { total: 1, passed: 0, violations: 1, score: 0 }
-                    };
-
-                    showResults(testResults);
-
-                    // After showResults completes and DOM is updated, trigger the AI explanation
-                    setTimeout(() => {
-                        console.log("🧪 Triggering test AI explanation...");
-                        const testExplanation = {
-                            explanation: "This is a test explanation to verify the AI system is working correctly. The purple container and colored sections should be visible.",
-                            suggestions: [
-                                "First test suggestion for fixing the issue",
-                                "Second test suggestion with more details",
-                                "Third test suggestion for completeness"
-                            ],
-                            impact: "This test demonstrates that the AI explanation system is functioning properly and displaying content correctly."
-                        };
-
-                        // Call showAIExplanation which will get a fresh reference to the DOM element
-                        showAIExplanation(0, testExplanation);
-                    }, 100); // Reduced to 100ms since we just need DOM to update
-                });
-            }
-
             // Check for pending results from messages received before DOM was ready
             if (window.pendingResults) {
                 showResults(window.pendingResults);
@@ -1000,25 +1374,63 @@
                     return;
                 }
 
+                // Store results globally for filtering and export
+                window.currentResults = data.results || [];
+                window.currentFilteredResults = window.currentResults;
+
+                // Show tabs
+                const tabsContainer = document.getElementById('tabs-container');
+                if (tabsContainer) {
+                    tabsContainer.classList.remove('hidden');
+                }
+
+                // Update results badge
+                const resultsBadge = document.getElementById('results-badge');
+                if (resultsBadge) {
+                    resultsBadge.textContent = window.currentResults.length;
+                }
+
                 // Display real analysis results
                 resultsContainer.style.display = 'block';
+
+                // Show filter controls
+                const filterControls = document.getElementById('filter-controls');
+                if (filterControls) {
+                    filterControls.classList.remove('hidden');
+
+                    // Populate category filter with unique categories
+                    const categoryFilter = document.getElementById('category-filter');
+                    if (categoryFilter && window.currentResults.length > 0) {
+                        const categories = [...new Set(window.currentResults.map(r => r.category))];
+                        const currentValue = categoryFilter.value;
+                        categoryFilter.innerHTML = '<option value="all">All Categories</option>' +
+                            categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+                        categoryFilter.value = currentValue === 'all' || categories.includes(currentValue) ? currentValue : 'all';
+                    }
+                }
+
+                renderResults();
+            }
+
+            function renderResults() {
+                const resultsToDisplay = window.currentFilteredResults || [];
 
                 // Generate summary HTML
                 const summaryHtml = `
                     <div class="summary">
                         <h3>📊 Analysis Complete</h3>
-                        <p>Found ${data.results ? data.results.length : 0} results</p>
+                        <p>Showing ${resultsToDisplay.length} of ${window.currentResults.length} results</p>
                     </div>
                 `;
 
-                // Generate results HTML from actual data
-                const resultsHtml = (data.results || []).map((result, index) => {
+                // Generate results HTML from filtered data
+                const resultsHtml = resultsToDisplay.map((result, index) => {
                     const statusClass = result.status === 'failed' ? 'error' : result.status === 'warning' ? 'warning' : 'info';
                     const recommendationsHtml = result.recommendations && result.recommendations.length > 0 ?
                         `<ul class="recommendations">${result.recommendations.map(rec => `<li>${rec}</li>`).join('')}</ul>` : '';
 
                     return `
-                        <div class="result-item ${statusClass}" data-result-index="${index}">
+                        <div class="result-item ${statusClass}" data-result-index="${index}" data-node-id="${result.nodeId || ''}">
                             <div class="result-header">
                                 <h4>${result.tenetTitle || 'Unknown Issue'}</h4>
                                 <span class="result-status ${result.status || 'info'}">${result.status || 'info'}</span>
@@ -1037,21 +1449,16 @@
                     `;
                 }).join('');
 
-                // Set innerHTML - THIS DESTROYS ALL CHILD ELEMENTS
-                console.log("🚨🚨🚨 ABOUT TO SET innerHTML - ALL CHILD ELEMENTS WILL BE DESTROYED");
-                console.trace("🔍 Called from:");
-                resultsContainer.innerHTML = summaryHtml + `<div class="results">${resultsHtml}</div>`;
+                // Set innerHTML
+                console.log("🚨 Rendering results...");
+                const filterControlsEl = document.getElementById('filter-controls');
+                const summaryEl = document.getElementById('summary');
+                const resultsListEl = document.getElementById('results-list');
 
-                // Debug: Log the generated HTML to see what we actually created
-                console.log("🔍 Generated HTML length:", resultsContainer.innerHTML.length);
-                console.log("🔍 Results data length:", (data.results || []).length);
+                if (summaryEl) summaryEl.outerHTML = summaryHtml;
+                if (resultsListEl) resultsListEl.innerHTML = resultsHtml;
 
-                // Verify divs were actually created
-                const createdExplanationDivs = resultsContainer.querySelectorAll('[id*="ai-explanation"]');
-                console.log("🔍 Created explanation divs:", createdExplanationDivs.length);
-                createdExplanationDivs.forEach((div, idx) => {
-                    console.log(`  Created div ${idx}: ID="${div.id}"`);
-                });
+                console.log("🔍 Rendered results:", resultsToDisplay.length);
 
                 // Add event listeners to AI explain buttons
                 const aiButtons = resultsContainer.querySelectorAll('.ai-explain-btn');
@@ -1061,22 +1468,161 @@
                     button.addEventListener('click', handleAIExplainClick);
                 });
 
+                // Add click listeners to result items to highlight nodes in Figma
+                const resultItems = resultsContainer.querySelectorAll('.result-item');
+                console.log(`🔗 Adding highlight listeners to ${resultItems.length} result items`);
+
+                resultItems.forEach(item => {
+                    const nodeId = item.getAttribute('data-node-id');
+                    if (nodeId) {
+                        // Make the item clickable with visual feedback
+                        item.style.cursor = 'pointer';
+                        item.addEventListener('click', (e) => {
+                            // Don't trigger if clicking on the AI button
+                            if (e.target instanceof HTMLElement && !e.target.closest('.ai-explain-btn')) {
+                                console.log('🎯 Highlighting node:', nodeId);
+                                if (parent && parent !== window) {
+                                    parent.postMessage({
+                                        pluginMessage: {
+                                            type: 'highlight-node',
+                                            data: { nodeId }
+                                        }
+                                    }, '*');
+                                }
+                            }
+                        });
+                    }
+                });
+
                 if (emptyState) emptyState.style.display = 'none';
                 console.log("✅ Real results displayed successfully");
+            }
 
-                // Verify the elements were created
-                const createdButton = resultsContainer.querySelector('.ai-explain-btn');
-                const createdDiv = resultsContainer.querySelector('#ai-explanation-0');
-                console.log("� Test button created:", !!createdButton);
-                console.log("🔍 Test explanation div created:", !!createdDiv);
+            function applyFilters() {
+                const severityFilter = document.getElementById('severity-filter').value;
+                const categoryFilter = document.getElementById('category-filter').value;
 
-                if (createdButton) {
-                    console.log("🔗 Adding click listener to test button");
-                    createdButton.addEventListener('click', handleAIExplainClick);
+                window.currentFilteredResults = window.currentResults.filter(result => {
+                    const matchesSeverity = severityFilter === 'all' || result.severity === severityFilter;
+                    const matchesCategory = categoryFilter === 'all' || result.category === categoryFilter;
+                    return matchesSeverity && matchesCategory;
+                });
+
+                console.log(`🔍 Filtered results: ${window.currentFilteredResults.length} of ${window.currentResults.length}`);
+                renderResults();
+            }
+
+            function exportResults() {
+                const results = window.currentFilteredResults || [];
+                if (results.length === 0) {
+                    console.log('⚠️ No results to export');
+                    return;
                 }
 
-                if (emptyState) emptyState.style.display = 'none';
-            } function handleAIExplainClick(event) {
+                // Generate CSV content
+                let csvContent = "Severity,Category,Element,Type,Issue,Message,Recommendations\n";
+
+                results.forEach(result => {
+                    const recommendations = (result.recommendations || []).join('; ');
+                    const row = [
+                        result.severity || 'info',
+                        result.category || 'General',
+                        result.nodeName || 'Unknown',
+                        result.nodeType || 'Element',
+                        result.tenetTitle || 'Issue',
+                        (result.message || '').replace(/"/g, '""'),
+                        recommendations.replace(/"/g, '""')
+                    ].map(cell => `"${cell}"`).join(',');
+                    csvContent += row + "\n";
+                });
+
+                // Create downloadable link
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `ui-analysis-${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+
+                console.log('✅ Exported', results.length, 'results');
+            }
+
+            // Add filter change listeners
+            const severityFilter = document.getElementById('severity-filter');
+            const categoryFilter = document.getElementById('category-filter');
+            const exportBtn = document.getElementById('export-btn');
+            const explainAllBtn = document.getElementById('explain-all-btn');
+
+            if (severityFilter) {
+                severityFilter.addEventListener('change', applyFilters);
+            }
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', applyFilters);
+            }
+            if (exportBtn) {
+                exportBtn.addEventListener('click', exportResults);
+            }
+            if (explainAllBtn) {
+                explainAllBtn.addEventListener('click', handleExplainAll);
+            }
+
+            async function handleExplainAll() {
+                const explainAllBtn = document.getElementById('explain-all-btn');
+                const results = window.currentFilteredResults || [];
+
+                if (results.length === 0) {
+                    console.log('⚠️ No results to explain');
+                    return;
+                }
+
+                // Disable button and show progress
+                explainAllBtn.disabled = true;
+                explainAllBtn.innerHTML = '🤖 Explaining... <span class="progress-text">0/' + results.length + '</span>';
+
+                let completed = 0;
+                const batchSize = 3; // Process 3 at a time to avoid overwhelming the API
+
+                // Process in batches
+                for (let i = 0; i < results.length; i += batchSize) {
+                    const batch = results.slice(i, Math.min(i + batchSize, results.length));
+
+                    // Process batch in parallel
+                    await Promise.all(batch.map(async (result, batchIndex) => {
+                        const actualIndex = i + batchIndex;
+                        const button = document.querySelector(`[data-result-index="${actualIndex}"]`);
+
+                        if (button && !button.disabled) {
+                            // Simulate click to trigger existing AI explanation logic
+                            button.click();
+
+                            // Wait a bit to let the request go through
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        }
+
+                        completed++;
+                        explainAllBtn.innerHTML = `🤖 Explaining... <span class="progress-text">${completed}/${results.length}</span>`;
+                    }));
+
+                    // Small delay between batches
+                    if (i + batchSize < results.length) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+
+                // Re-enable button
+                setTimeout(() => {
+                    explainAllBtn.disabled = false;
+                    explainAllBtn.innerHTML = '✅ All Explained';
+
+                    // Reset after 3 seconds
+                    setTimeout(() => {
+                        explainAllBtn.innerHTML = '🤖 Explain All';
+                    }, 3000);
+                }, 500);
+
+                console.log('✅ Bulk explanation complete');
+            }
+
+            function handleAIExplainClick(event) {
                 console.log("🤖 AI Explain button clicked");
                 const button = event.target;
                 const resultIndex = button.getAttribute('data-result-index');
@@ -1239,39 +1785,63 @@
             }
 
             function showExplanationContent(explanationDiv, explanation, button, resultIndex) {
-                // Mark that an explanation is being shown - prevent showResults from regenerating HTML
+                // Mark that an explanation is being shown
                 window.aiExplanationActive = true;
 
-                console.log("✅ Showing AI explanation for result index:", resultIndex);
-                console.log("🔍 Explanation div:", explanationDiv);
-                console.log("🔍 Explanation data:", explanation);
-                console.log("🔍 Current display style:", explanationDiv.style.display);
+                console.log("🎭 MODAL: Starting to show explanation...");
+                console.log("🎭 MODAL: Explanation data:", explanation);
 
-                // Clear any existing content first to prevent duplicates
-                explanationDiv.innerHTML = '';
+                // Get the modal elements
+                const modal = document.getElementById('ai-modal');
+                const modalBody = document.getElementById('ai-modal-body');
 
-                // Add the new explanation content with clear separation
-                explanationDiv.innerHTML = `
-                    <div class="ai-explanation-content">
-                        <h5>🤖 AI Assistant Says</h5>
+                console.log("🎭 MODAL: modal element:", !!modal);
+                console.log("🎭 MODAL: modalBody element:", !!modalBody);
+
+                if (!modal || !modalBody) {
+                    console.error("❌ MODAL: Modal elements not found!");
+                    console.log("Available elements:", {
+                        modal: document.getElementById('ai-modal'),
+                        modalBody: document.getElementById('ai-modal-body'),
+                        allDivs: document.querySelectorAll('div').length
+                    });
+                    return;
+                }                // Build the explanation HTML
+                // Get the current result to store with favorites
+                const currentResult = window.currentFilteredResults ? window.currentFilteredResults[resultIndex] : null;
+                const learningId = `learning-${Date.now()}-${resultIndex}`;
+                const isFavorited = currentResult ? isLearningFavorited(currentResult, explanation) : false;
+
+                const explanationHTML = `
+                    <div class="ai-explanation-content" style="max-width: 600px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h5 style="color: #a78bfa; margin: 0; font-size: 16px;">🤖 AI Assistant Says</h5>
+                            <button 
+                                class="favorite-btn ${isFavorited ? 'favorited' : ''}" 
+                                onclick="toggleFavorite('${learningId}', ${resultIndex}, ${JSON.stringify(explanation).replace(/"/g, '&quot;')})"
+                                title="${isFavorited ? 'Remove from learnings' : 'Save to learnings'}"
+                            >
+                                ${isFavorited ? '⭐' : '☆'}
+                            </button>
+                        </div>
                         
-                        <div style="background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #a78bfa;">
-                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
-                                💬 Explanation
+                        <div style="background: rgba(0, 0, 0, 0.3); padding: 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #a78bfa;">
+                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                                � Explanation
                             </div>
-                            <div class="ai-explanation-text" style="line-height: 1.6; color: rgba(255, 255, 255, 0.95); font-size: 13px;">
+                            <div style="line-height: 1.6; color: rgba(255, 255, 255, 0.95); font-size: 14px;">
                                 ${explanation.explanation || 'No explanation provided'}
                             </div>
                         </div>
                         
                         ${explanation.suggestions && explanation.suggestions.length > 0 ? `
-                            <div style="background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #fbbf24;">
-                                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #fbbf24;">
+                                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
                                     💡 How to Fix It
                                 </div>
-                                <ul style="margin: 0; padding-left: 20px; list-style-type: '✓ ';">
+                                <ul style="margin: 0; padding-left: 24px;">
                                     ${explanation.suggestions.map(suggestion => `
-                                        <li style="margin: 6px 0; color: rgba(255, 255, 255, 0.9); line-height: 1.5; font-size: 12px;">
+                                        <li style="margin: 8px 0; color: rgba(255, 255, 255, 0.9); line-height: 1.6; font-size: 13px;">
                                             ${suggestion}
                                         </li>
                                     `).join('')}
@@ -1279,200 +1849,71 @@
                             </div>
                         ` : ''}
                         
-                        <div style="background: rgba(239, 68, 68, 0.15); padding: 12px; border-radius: 8px; border-left: 4px solid #ef4444;">
-                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                        ${explanation.codeSuggestions && explanation.codeSuggestions.length > 0 ? `
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+                                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+                                    👨‍💻 Code Suggestions
+                                </div>
+                                ${explanation.codeSuggestions.map(codeSuggestion => `
+                                    <div style="margin-bottom: 16px;">
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                            <span style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase;">
+                                                ${codeSuggestion.language}
+                                            </span>
+                                            <span style="color: rgba(255, 255, 255, 0.9); font-size: 13px; font-weight: 500;">
+                                                ${codeSuggestion.title}
+                                            </span>
+                                        </div>
+                                        <p style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin: 0 0 8px 0; line-height: 1.5;">
+                                            ${codeSuggestion.description}
+                                        </p>
+                                        <div style="position: relative; background: rgba(0, 0, 0, 0.5); border-radius: 8px; padding: 12px; font-family: 'Monaco', 'Menlo', 'Consolas', monospace; font-size: 12px; overflow-x: auto;">
+                                            <button 
+                                                onclick="navigator.clipboard.writeText(\`${codeSuggestion.code.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`).then(() => { 
+                                                    this.textContent = '✓ Copied!'; 
+                                                    setTimeout(() => this.textContent = '📋 Copy', 1000); 
+                                                })"
+                                                style="position: absolute; top: 8px; right: 8px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.3); color: #3b82f6; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; transition: all 0.2s;"
+                                                onmouseover="this.style.background='rgba(59, 130, 246, 0.3)'"
+                                                onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'"
+                                            >📋 Copy</button>
+                                            <pre style="margin: 0; color: #e2e8f0; white-space: pre-wrap; word-wrap: break-word; padding-right: 60px;"><code>${codeSuggestion.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="background: rgba(239, 68, 68, 0.15); padding: 16px; border-radius: 12px; border-left: 4px solid #ef4444;">
+                            <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
                                 ⚠️ Why It Matters
                             </div>
-                            <div class="ai-impact" style="font-style: italic; color: rgba(255, 255, 255, 0.85); line-height: 1.5; font-size: 12px;">
+                            <div style="font-style: italic; color: rgba(255, 255, 255, 0.85); line-height: 1.6; font-size: 13px;">
                                 ${explanation.impact || 'Impact assessment unavailable'}
                             </div>
                         </div>
                     </div>
                 `;
 
-                // Force display with class and inline styles
-                explanationDiv.classList.add('show');
-                explanationDiv.style.setProperty('display', 'block', 'important');
-                explanationDiv.style.setProperty('visibility', 'visible', 'important');
-                explanationDiv.style.setProperty('opacity', '1', 'important');
-                explanationDiv.style.setProperty('height', 'auto', 'important');
-                explanationDiv.style.setProperty('overflow', 'visible', 'important');
-                explanationDiv.style.setProperty('max-height', 'none', 'important');
+                // Set the modal content
+                modalBody.innerHTML = explanationHTML;
 
-                // Also remove any conflicting inline styles
-                explanationDiv.removeAttribute('hidden');
-
-                // Scroll the explanation into view
+                // Show the modal with a slight delay to ensure it renders
                 setTimeout(() => {
-                    // Get a FRESH reference to the element in case DOM was recreated
-                    const freshDiv = document.getElementById(explanationDiv.id);
-                    if (freshDiv) {
-                        freshDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        console.log("✅ Scrolled fresh element into view");
-                    } else {
-                        console.error("❌ Could not find fresh element for scrolling");
-                        // Try the old reference anyway
-                        explanationDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
-                }, 50);
+                    modal.classList.add('show');
+                    console.log("✅ Modal displayed successfully");
+                }, 10);
 
-                console.log("✅ Explanation HTML set, innerHTML length:", explanationDiv.innerHTML.length);
-                console.log("✅ After setting display:", explanationDiv.style.display);
-                console.log("✅ Classes:", explanationDiv.className);
-                console.log("✅ Computed display:", window.getComputedStyle(explanationDiv).display);
-                console.log("✅ IMMEDIATELY AFTER SETUP - In DOM?", document.body.contains(explanationDiv));
-                console.log("✅ IMMEDIATELY AFTER SETUP - Parent in DOM?", explanationDiv.parentElement ? document.body.contains(explanationDiv.parentElement) : 'NO PARENT');
-
-                // SYNCHRONOUS check right now
-                console.log("🔬 SYNC CHECK - resultsContainer in DOM?", document.body.contains(resultsContainer));
-                console.log("🔬 SYNC CHECK - resultsContainer ID:", resultsContainer ? resultsContainer.id : 'NONE');
-
-                // Watch the results container for any innerHTML changes
-                const containerObserver = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === 'childList' && mutation.target === resultsContainer) {
-                            console.error("🚨🚨🚨 RESULTS CONTAINER MODIFIED!");
-                            console.log("🚨 Added nodes:", mutation.addedNodes.length);
-                            console.log("🚨 Removed nodes:", mutation.removedNodes.length);
-                            console.trace("🚨 Modified by:");
-                        }
-                    });
-                });
-
-                containerObserver.observe(resultsContainer, {
-                    childList: true,
-                    subtree: false // Only watch direct children
-                });
-
-                // Watch for any changes to the element that might hide it
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        console.warn("⚠️⚠️⚠️ MUTATION DETECTED!", mutation.type, mutation.attributeName);
-                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                            console.warn("⚠️ Style changed on explanation div!");
-                            console.log("New display:", explanationDiv.style.display);
-                            console.log("Computed display:", window.getComputedStyle(explanationDiv).display);
-                            // Force it back to visible
-                            if (window.getComputedStyle(explanationDiv).display === 'none') {
-                                console.log("🔧 Force re-showing explanation!");
-                                explanationDiv.style.setProperty('display', 'block', 'important');
-                            }
-                        }
-                    });
-                });
-
-                observer.observe(explanationDiv, {
-                    attributes: true,
-                    attributeFilter: ['style', 'class'],
-                    childList: true,
-                    characterData: true,
-                    subtree: true
-                });
-
-                // Also watch the parent to see if it gets removed
-                const parentObserver = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === 'childList') {
-                            mutation.removedNodes.forEach((node) => {
-                                if (node.contains && node.contains(explanationDiv)) {
-                                    console.error("🚨🚨🚨 EXPLANATION DIV WAS REMOVED FROM DOM!");
-                                    console.log("Removed by:", mutation.target);
-                                }
-                            });
-                        }
-                    });
-                });
-
-                if (explanationDiv.parentElement) {
-                    parentObserver.observe(explanationDiv.parentElement, {
-                        childList: true,
-                        subtree: true
-                    });
-                }
-
-                // Store explanation data for potential re-injection
-                const savedExplanationHTML = explanationDiv.innerHTML;
-                const savedExplanationId = explanationDiv.id;
-
-                // Store globally for persistence across DOM recreations
-                window.activeExplanations = window.activeExplanations || {};
-                window.activeExplanations[savedExplanationId] = {
-                    html: savedExplanationHTML,
-                    resultIndex: resultIndex
-                };
-
-                // Check every 200ms and ensure explanation stays visible
-                let checkCount = 0;
-                const interval = setInterval(() => {
-                    checkCount++;
-
-                    // Query for the element fresh each time - try multiple methods
-                    let currentDiv = document.getElementById(savedExplanationId);
-
-                    // If not found by ID, try from results container
-                    if (!currentDiv) {
-                        const container = document.getElementById('results-container');
-                        if (container) {
-                            currentDiv = container.querySelector(`#${savedExplanationId}`);
-                        }
-                    }
-
-                    // If still not found, scan all .ai-explanation elements
-                    if (!currentDiv) {
-                        const allDivs = document.querySelectorAll('.ai-explanation');
-                        for (const div of allDivs) {
-                            if (div.id === savedExplanationId) {
-                                currentDiv = div;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (currentDiv) {
-                        // Element exists - check if it's visible
-                        const display = window.getComputedStyle(currentDiv).display;
-                        const visibility = window.getComputedStyle(currentDiv).visibility;
-                        const opacity = window.getComputedStyle(currentDiv).opacity;
-                        const hasContent = currentDiv.innerHTML && currentDiv.innerHTML.length > 100;
-
-                        if (display === 'none' || visibility === 'hidden' || opacity === '0' || !hasContent) {
-                            console.warn(`⚠️ Check ${checkCount}: Fixing element...`);
-                            if (!hasContent) currentDiv.innerHTML = savedExplanationHTML;
-                            currentDiv.classList.add('show');
-                            currentDiv.style.setProperty('display', 'block', 'important');
-                            currentDiv.style.setProperty('visibility', 'visible', 'important');
-                            currentDiv.style.setProperty('opacity', '1', 'important');
-                            currentDiv.style.setProperty('height', 'auto', 'important');
-                            currentDiv.style.setProperty('overflow', 'visible', 'important');
-                            console.log(`✅ Check ${checkCount}: Fixed`);
-                        } else {
-                            console.log(`✅ Check ${checkCount}: Visible (${display})`);
-                        }
-                    } else {
-                        console.error(`❌ Check ${checkCount}: Not found`);
-                    }
-
-                    if (checkCount >= 15) { // 15 checks = 3 seconds
-                        clearInterval(interval);
-                        console.log("✅ Monitoring complete");
-                    }
-                }, 200);                // Check after 2 seconds if it's still visible
-                setTimeout(() => {
-                    const stillVisible = window.getComputedStyle(explanationDiv).display !== 'none';
-                    console.log("🕐 After 2 seconds - still visible?", stillVisible);
-                    console.log("🕐 Current display:", window.getComputedStyle(explanationDiv).display);
-                    console.log("🕐 Current innerHTML length:", explanationDiv.innerHTML.length);
-                }, 2000);
-
-                // Update button state - prevent further clicks
+                // Update button state
                 if (button) {
                     button.textContent = '✅ AI Explained';
                     button.disabled = true;
                     button.style.opacity = '0.7';
                     button.style.cursor = 'not-allowed';
-                    console.log("✅ Button updated to 'AI Explained' state");
                 }
-            } function handleAIExplanationError(error, resultIndex = null) {
+            }
+
+            function handleAIExplanationError(error, resultIndex = null) {
                 console.error("AI explanation error:", error);
 
                 if (resultIndex !== null) {
@@ -1572,6 +2013,303 @@
             console.log("🧪 Testing message handler...");
             window.postMessage({ pluginMessage: { type: 'test-message', data: 'test' } }, '*');
         });
+
+        // ========== LEARNING MODE FUNCTIONS ==========
+
+        // Local storage key
+        const LEARNINGS_KEY = 'ui-tenets-learnings';
+
+        // Get all learnings from local storage
+        function getLearnings() {
+            try {
+                const stored = localStorage.getItem(LEARNINGS_KEY);
+                return stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                console.error('Failed to load learnings:', e);
+                return [];
+            }
+        }
+
+        // Save learnings to local storage
+        function saveLearnings(learnings) {
+            try {
+                localStorage.setItem(LEARNINGS_KEY, JSON.stringify(learnings));
+                updateLearningsBadge();
+            } catch (e) {
+                console.error('Failed to save learnings:', e);
+            }
+        }
+
+        // Check if a learning is favorited
+        function isLearningFavorited(result, explanation) {
+            const learnings = getLearnings();
+            return learnings.some(l =>
+                l.result.tenetTitle === result.tenetTitle &&
+                l.result.nodeName === result.nodeName
+            );
+        }
+
+        // Toggle favorite
+        function toggleFavorite(learningId, resultIndex, explanation) {
+            console.log('Toggle favorite:', { learningId, resultIndex, explanation });
+
+            const result = window.currentFilteredResults[resultIndex];
+            if (!result) {
+                console.error('Result not found at index:', resultIndex);
+                return;
+            }
+
+            const learnings = getLearnings();
+            const existingIndex = learnings.findIndex(l =>
+                l.result.tenetTitle === result.tenetTitle &&
+                l.result.nodeName === result.nodeName
+            );
+
+            if (existingIndex >= 0) {
+                // Remove from favorites
+                learnings.splice(existingIndex, 1);
+                console.log('Removed from learnings');
+            } else {
+                // Add to favorites
+                learnings.push({
+                    id: learningId,
+                    result: result,
+                    explanation: explanation,
+                    timestamp: Date.now(),
+                    dateAdded: new Date().toISOString()
+                });
+                console.log('Added to learnings');
+            }
+
+            saveLearnings(learnings);
+            renderLearnings();
+
+            // Update the favorite button in the modal
+            const favoriteBtn = document.querySelector('.favorite-btn');
+            if (favoriteBtn) {
+                const isFavorited = existingIndex < 0; // Was just added
+                favoriteBtn.classList.toggle('favorited', isFavorited);
+                favoriteBtn.innerHTML = isFavorited ? '⭐' : '☆';
+                favoriteBtn.title = isFavorited ? 'Remove from learnings' : 'Save to learnings';
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tabName);
+            });
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.toggle('active', content.id === `${tabName}-tab`);
+            });
+
+            // Render learnings if switching to learnings tab
+            if (tabName === 'learnings') {
+                renderLearnings();
+            }
+        }
+
+        // Render learnings list
+        function renderLearnings(searchQuery = '') {
+            const learnings = getLearnings();
+            const learningsList = document.getElementById('learnings-list');
+
+            if (!learningsList) return;
+
+            // Filter learnings by search query
+            const filteredLearnings = searchQuery
+                ? learnings.filter(l =>
+                    l.result.tenetTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    l.result.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    l.explanation.explanation.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                : learnings;
+
+            if (filteredLearnings.length === 0) {
+                learningsList.innerHTML = `
+                    <div class="learning-empty">
+                        <div class="learning-empty-icon">${searchQuery ? '🔍' : '⭐'}</div>
+                        <h3 style="color: rgba(255, 255, 255, 0.7); margin: 0 0 8px 0;">
+                            ${searchQuery ? 'No Results Found' : 'No Learnings Yet'}
+                        </h3>
+                        <p style="margin: 0;">
+                            ${searchQuery
+                        ? 'Try a different search term'
+                        : 'Star AI explanations you find useful to build your knowledge base'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by most recent first
+            filteredLearnings.sort((a, b) => b.timestamp - a.timestamp);
+
+            learningsList.innerHTML = filteredLearnings.map((learning, index) => {
+                const date = new Date(learning.timestamp);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+
+                return `
+                    <div class="learning-card">
+                        <div class="learning-card-header">
+                            <div>
+                                <h4 class="learning-card-title">${learning.result.tenetTitle}</h4>
+                                <div class="learning-card-date">${formattedDate}</div>
+                            </div>
+                            <button 
+                                class="favorite-btn favorited" 
+                                onclick="removeLearning(${index})"
+                                title="Remove from learnings"
+                            >⭐</button>
+                        </div>
+                        <div class="learning-card-content">
+                            <div style="background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid ${getSeverityColor(learning.result.severity)};">
+                                <div style="font-size: 10px; color: rgba(255, 255, 255, 0.5); margin-bottom: 4px; text-transform: uppercase;">
+                                    Issue
+                                </div>
+                                <div style="font-size: 13px; color: rgba(255, 255, 255, 0.9);">
+                                    ${learning.result.message}
+                                </div>
+                                <div style="margin-top: 8px; font-size: 11px; color: rgba(255, 255, 255, 0.6);">
+                                    <strong>Element:</strong> ${learning.result.nodeName} (${learning.result.nodeType})
+                                </div>
+                            </div>
+                            <div style="background: rgba(167, 139, 250, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid #a78bfa;">
+                                <div style="font-size: 10px; color: rgba(255, 255, 255, 0.5); margin-bottom: 4px; text-transform: uppercase;">
+                                    AI Insight
+                                </div>
+                                <div style="font-size: 13px; color: rgba(255, 255, 255, 0.9); line-height: 1.5;">
+                                    ${learning.explanation.explanation}
+                                </div>
+                                ${learning.explanation.suggestions && learning.explanation.suggestions.length > 0 ? `
+                                    <div style="margin-top: 12px;">
+                                        <div style="font-size: 10px; color: rgba(255, 255, 255, 0.5); margin-bottom: 6px; text-transform: uppercase;">
+                                            Suggestions
+                                        </div>
+                                        <ul style="margin: 0; padding-left: 20px; font-size: 12px;">
+                                            ${learning.explanation.suggestions.slice(0, 3).map(s => `
+                                                <li style="margin: 4px 0; color: rgba(255, 255, 255, 0.8);">${s}</li>
+                                            `).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Remove learning
+        function removeLearning(index) {
+            const learnings = getLearnings();
+            learnings.splice(index, 1);
+            saveLearnings(learnings);
+            renderLearnings();
+        }
+
+        // Clear all learnings
+        function clearAllLearnings() {
+            if (confirm('Are you sure you want to clear all your saved learnings? This cannot be undone.')) {
+                localStorage.removeItem(LEARNINGS_KEY);
+                updateLearningsBadge();
+                renderLearnings();
+            }
+        }
+
+        // Export learnings to CSV
+        function exportLearnings() {
+            const learnings = getLearnings();
+
+            if (learnings.length === 0) {
+                alert('No learnings to export');
+                return;
+            }
+
+            // Create CSV content
+            let csvContent = 'Date,Tenet,Element,Issue,AI Explanation,Suggestions\n';
+
+            learnings.forEach(learning => {
+                const date = new Date(learning.timestamp).toLocaleString();
+                const tenet = learning.result.tenetTitle;
+                const element = `${learning.result.nodeName} (${learning.result.nodeType})`;
+                const issue = learning.result.message.replace(/"/g, '""');
+                const explanation = learning.explanation.explanation.replace(/"/g, '""');
+                const suggestions = (learning.explanation.suggestions || []).join('; ').replace(/"/g, '""');
+
+                csvContent += `"${date}","${tenet}","${element}","${issue}","${explanation}","${suggestions}"\n`;
+            });
+
+            // Create download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            const timestamp = new Date().toISOString().split('T')[0];
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', `ui-tenets-learnings-${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            console.log('✅ Learnings exported successfully');
+        }
+
+        // Update learnings badge
+        function updateLearningsBadge() {
+            const learnings = getLearnings();
+            const badge = document.getElementById('learnings-badge');
+            if (badge) {
+                badge.textContent = learnings.length;
+            }
+        }
+
+        // Helper function for severity colors
+        function getSeverityColor(severity) {
+            switch (severity.toLowerCase()) {
+                case 'error': return '#f44336';
+                case 'warning': return '#ff9800';
+                case 'info': return '#2196f3';
+                default: return '#9e9e9e';
+            }
+        }
+
+        // Initialize learning mode event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Search learnings
+            const searchInput = document.getElementById('learning-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    renderLearnings(e.target.value);
+                });
+            }
+
+            // Export learnings button
+            const exportLearningsBtn = document.getElementById('export-learnings-btn');
+            if (exportLearningsBtn) {
+                exportLearningsBtn.addEventListener('click', exportLearnings);
+            }
+
+            // Clear learnings button
+            const clearLearningsBtn = document.getElementById('clear-learnings-btn');
+            if (clearLearningsBtn) {
+                clearLearningsBtn.addEventListener('click', clearAllLearnings);
+            }
+
+            // Update badge on load
+            updateLearningsBadge();
+        });
+
+        // Expose functions to window
+        window.switchTab = switchTab;
+        window.toggleFavorite = toggleFavorite;
+        window.removeLearning = removeLearning;
+        window.isLearningFavorited = isLearningFavorited;
     </script>
 </body>
 

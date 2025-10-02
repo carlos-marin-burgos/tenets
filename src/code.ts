@@ -57,6 +57,10 @@ figma.ui.onmessage = async (msg) => {
         console.log("🎯 Handling get-ai-explanation");
         await handleAIExplanation(actualMessage.data);
         break;
+      case "highlight-node":
+        console.log("🎯 Handling highlight-node");
+        highlightNode(actualMessage.data.nodeId);
+        break;
       default:
         console.log("❌ Unknown message type:", actualMessage.type);
         figma.notify(`❌ Unknown message: ${actualMessage.type || "no type"}`);
@@ -110,13 +114,25 @@ async function analyzeSelection() {
     }
 
     console.log(
-      `📊 Selection analysis complete. Found ${results.length} total results`
+      `📊 Selection analysis complete. Found ${results.length} total results (before deduplication)`
     );
-    const summary = calculateSummary(results);
+
+    // Deduplicate results based on nodeId + tenetId combination
+    const uniqueResults = Array.from(
+      new Map(
+        results.map((result) => [`${result.nodeId}-${result.tenetId}`, result])
+      ).values()
+    );
+
+    console.log(
+      `📊 After deduplication: ${uniqueResults.length} unique results`
+    );
+
+    const summary = calculateSummary(uniqueResults);
 
     figma.ui.postMessage({
       type: "analysis-complete",
-      data: { summary, results },
+      data: { summary, results: uniqueResults },
     });
   } catch (error) {
     console.error("❌ Selection analysis error:", error);
@@ -179,10 +195,6 @@ async function analyzePage() {
         const shouldContinue = await analyzeNodeRecursively(child);
         if (!shouldContinue) {
           // Hit the node limit, but that's okay - we'll still show results
-          figma.notify(
-            `⚠️ Analyzed ${maxNodes} nodes (limit reached), showing results`,
-            { timeout: 3000 }
-          );
           break;
         }
       }
@@ -199,31 +211,34 @@ async function analyzePage() {
     await Promise.race([analysisPromise(), timeoutPromise]);
 
     console.log(
-      `📊 Analysis complete. Analyzed ${nodeCount} nodes, found ${results.length} results`
+      `📊 Analysis complete. Analyzed ${nodeCount} nodes, found ${results.length} results (before deduplication)`
     );
 
-    if (nodeCount >= maxNodes) {
-      figma.notify(
-        `⚠️ Analyzed ${maxNodes} nodes (limit reached). Found ${results.length} items.`,
-        { timeout: 3000 }
-      );
-    } else {
-      figma.notify(
-        `✅ Analysis complete! Found ${results.length} items from ${nodeCount} nodes`,
-        { timeout: 2000 }
-      );
-    }
+    // Deduplicate results based on nodeId + tenetId combination
+    const uniqueResults = Array.from(
+      new Map(
+        results.map((result) => [`${result.nodeId}-${result.tenetId}`, result])
+      ).values()
+    );
 
-    const summary = calculateSummary(results);
+    console.log(
+      `📊 After deduplication: ${uniqueResults.length} unique results`
+    );
+
+    figma.notify(`✅ Analysis complete! Found ${uniqueResults.length} items`, {
+      timeout: 2000,
+    });
+
+    const summary = calculateSummary(uniqueResults);
 
     console.log("📤 Sending results to UI:", {
-      resultsCount: results.length,
+      resultsCount: uniqueResults.length,
       summary,
     });
 
     figma.ui.postMessage({
       type: "analysis-complete",
-      data: { summary, results },
+      data: { summary, results: uniqueResults },
     });
   } catch (error) {
     console.error("❌ Page analysis error:", error);
@@ -360,6 +375,32 @@ figma.on("selectionchange", () => {
     },
   });
 });
+
+function highlightNode(nodeId: string) {
+  try {
+    console.log("🎯 Attempting to highlight node:", nodeId);
+    const node = figma.getNodeById(nodeId);
+
+    if (node) {
+      // Check if node can be selected (some nodes like PAGE can't be selected)
+      if ("absoluteBoundingBox" in node) {
+        figma.currentPage.selection = [node as SceneNode];
+        figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
+        figma.notify(`✨ Highlighted: ${node.name}`);
+        console.log("✅ Node highlighted successfully:", node.name);
+      } else {
+        console.warn("⚠️ Node cannot be selected:", node.name);
+        figma.notify(`⚠️ Cannot highlight: ${node.name}`);
+      }
+    } else {
+      console.error("❌ Node not found:", nodeId);
+      figma.notify("❌ Element not found in design");
+    }
+  } catch (error) {
+    console.error("❌ Error highlighting node:", error);
+    figma.notify("❌ Could not highlight element");
+  }
+}
 
 const uniqueTenets = UITenetsData.map((tenet, index) => ({
   id: tenet.id,

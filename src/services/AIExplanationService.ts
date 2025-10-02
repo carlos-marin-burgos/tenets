@@ -25,6 +25,14 @@ interface AIExplanationResponse {
   suggestions: string[];
   impact: string;
   examples?: string[];
+  codeSuggestions?: CodeSuggestion[];
+}
+
+interface CodeSuggestion {
+  language: "css" | "figma" | "tokens";
+  title: string;
+  code: string;
+  description: string;
 }
 
 export class AIExplanationService {
@@ -105,19 +113,243 @@ export class AIExplanationService {
 
   private buildPrompt(request: AIExplanationRequest): string {
     const { violation } = request;
-    return `Analyze this UI design issue: ${violation.message} for element ${violation.nodeName}. Provide WHY it matters, HOW to fix it, and the IMPACT if unfixed.`;
+    return `Analyze this UI design issue: ${violation.message} for element ${violation.nodeName} (${violation.nodeType}).
+
+Please provide:
+1. WHY it matters (brief explanation)
+2. HOW to fix it (actionable steps)
+3. IMPACT if unfixed
+4. CODE SUGGESTIONS (specific CSS or design tokens)
+
+For code suggestions, provide:
+- CSS code with actual values (colors, sizes, spacing)
+- Design token recommendations (naming conventions)
+- Figma-specific settings if applicable
+
+Format your response clearly with sections.`;
   }
 
   private parseAIResponse(
     content: string,
     request: AIExplanationRequest
   ): AIExplanationResponse {
+    const codeSuggestions = this.extractCodeSuggestionsFromText(content);
+
     return {
       explanation: content,
       suggestions: this.extractSuggestionsFromText(content),
       impact: "This issue may impact user experience and accessibility",
       examples: [],
+      codeSuggestions:
+        codeSuggestions.length > 0
+          ? codeSuggestions
+          : this.generateDefaultCodeSuggestions(request),
     };
+  }
+
+  private extractCodeSuggestionsFromText(text: string): CodeSuggestion[] {
+    const suggestions: CodeSuggestion[] = [];
+
+    // Look for CSS code blocks
+    const cssMatches = text.matchAll(/```css\n([\s\S]*?)```/g);
+    for (const match of cssMatches) {
+      suggestions.push({
+        language: "css",
+        title: "CSS Fix",
+        code: match[1].trim(),
+        description: "Apply this CSS to fix the issue",
+      });
+    }
+
+    // Look for design token mentions
+    const tokenRegex = /--[\w-]+:\s*[^;]+;/g;
+    const tokenMatches = text.match(tokenRegex);
+    if (tokenMatches && tokenMatches.length > 0) {
+      suggestions.push({
+        language: "tokens",
+        title: "Design Tokens",
+        code: tokenMatches.join("\n"),
+        description: "Use these design tokens for consistency",
+      });
+    }
+
+    return suggestions;
+  }
+
+  private generateDefaultCodeSuggestions(
+    request: AIExplanationRequest
+  ): CodeSuggestion[] {
+    const { violation } = request;
+    const suggestions: CodeSuggestion[] = [];
+
+    // Generate context-specific code suggestions
+    if (violation.message.toLowerCase().includes("contrast")) {
+      suggestions.push({
+        language: "css",
+        title: "Improve Contrast",
+        code: `/* Original - Low Contrast */
+color: #999999;
+background: #CCCCCC;
+
+/* Fixed - High Contrast */
+color: #333333;
+background: #FFFFFF;
+
+/* Or use semantic tokens */
+color: var(--text-primary);
+background: var(--bg-surface);`,
+        description:
+          "Use darker text or lighter backgrounds for better readability",
+      });
+
+      suggestions.push({
+        language: "tokens",
+        title: "Contrast Tokens",
+        code: `--text-primary: #1a1a1a;
+--text-secondary: #4a4a4a;
+--bg-surface: #ffffff;
+--bg-elevated: #f5f5f5;`,
+        description: "Define semantic color tokens for consistent contrast",
+      });
+    }
+
+    if (
+      violation.message.toLowerCase().includes("size") ||
+      violation.message.toLowerCase().includes("font")
+    ) {
+      suggestions.push({
+        language: "css",
+        title: "Adjust Font Size",
+        code: `/* Mobile-first approach */
+font-size: 16px;
+line-height: 1.5;
+
+/* Responsive scaling */
+@media (min-width: 768px) {
+  font-size: 18px;
+}
+
+/* Or use clamp for fluid typography */
+font-size: clamp(16px, 2vw, 20px);`,
+        description: "Ensure text is readable on all devices",
+      });
+
+      suggestions.push({
+        language: "tokens",
+        title: "Typography Tokens",
+        code: `--font-size-body: 16px;
+--font-size-lg: 18px;
+--font-size-xl: 20px;
+--line-height-base: 1.5;
+--line-height-tight: 1.3;`,
+        description: "Use a type scale for consistent typography",
+      });
+    }
+
+    if (
+      violation.message.toLowerCase().includes("spacing") ||
+      violation.message.toLowerCase().includes("padding")
+    ) {
+      suggestions.push({
+        language: "css",
+        title: "Improve Spacing",
+        code: `/* Use 8-point grid system */
+padding: 16px;
+margin-bottom: 24px;
+gap: 8px;
+
+/* Touch-friendly targets */
+min-height: 44px;
+min-width: 44px;
+
+/* Or use spacing tokens */
+padding: var(--space-md);
+gap: var(--space-sm);`,
+        description: "Follow consistent spacing patterns",
+      });
+
+      suggestions.push({
+        language: "tokens",
+        title: "Spacing Tokens",
+        code: `--space-xs: 4px;
+--space-sm: 8px;
+--space-md: 16px;
+--space-lg: 24px;
+--space-xl: 32px;`,
+        description: "Define spacing scale based on 8-point grid",
+      });
+    }
+
+    if (
+      violation.message.toLowerCase().includes("accessibility") ||
+      violation.message.toLowerCase().includes("accessible")
+    ) {
+      suggestions.push({
+        language: "css",
+        title: "Accessibility Improvements",
+        code: `/* Focus visible for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}`,
+        description: "Ensure keyboard and screen reader accessibility",
+      });
+
+      suggestions.push({
+        language: "figma",
+        title: "Figma Accessibility",
+        code: `1. Add Alt Text to images/icons
+2. Set proper text hierarchy (H1, H2, H3)
+3. Use Auto Layout for responsive spacing
+4. Name layers descriptively
+5. Group related elements semantically`,
+        description: "Configure Figma for better accessibility handoff",
+      });
+    }
+
+    // Always provide at least one generic suggestion if none matched
+    if (suggestions.length === 0) {
+      suggestions.push({
+        language: "css",
+        title: "General Improvement",
+        code: `/* Follow design system principles */
+.${violation.nodeType.toLowerCase()} {
+  /* Use semantic tokens */
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  
+  /* Consistent spacing */
+  padding: var(--space-md);
+  gap: var(--space-sm);
+  
+  /* Smooth interactions */
+  transition: all 0.2s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .${violation.nodeType.toLowerCase()} {
+    padding: var(--space-sm);
+  }
+}`,
+        description: "Apply design system principles consistently",
+      });
+    }
+
+    return suggestions;
   }
 
   private extractSuggestionsFromText(text: string): string[] {
@@ -161,6 +393,29 @@ export class AIExplanationService {
         ],
         impact:
           "Users with visual impairments may not be able to read this content, which could exclude a significant portion of your audience.",
+        codeSuggestions: [
+          {
+            language: "css",
+            title: "Fix Contrast",
+            code: `/* Improve text contrast */
+color: #1a1a1a;
+background: #ffffff;
+
+/* Use WCAG AA compliant colors */
+--text-primary: #212121;
+--bg-surface: #f5f5f5;`,
+            description: "Use high-contrast colors for better readability",
+          },
+          {
+            language: "tokens",
+            title: "Contrast Tokens",
+            code: `--color-text-primary: #1a1a1a;
+--color-text-secondary: #4a4a4a;
+--color-bg-primary: #ffffff;
+--color-bg-secondary: #f5f5f5;`,
+            description: "Define semantic color tokens",
+          },
+        ],
       },
       text: {
         explanation:
@@ -173,6 +428,31 @@ export class AIExplanationService {
         ],
         impact:
           "Users may strain to read small text, leading to eye fatigue, or be unable to read it entirely.",
+        codeSuggestions: [
+          {
+            language: "css",
+            title: "Readable Font Sizes",
+            code: `/* Base font size */
+font-size: 16px;
+line-height: 1.5;
+
+/* Responsive typography */
+@media (min-width: 768px) {
+  font-size: 18px;
+}`,
+            description: "Use accessible font sizes",
+          },
+          {
+            language: "tokens",
+            title: "Typography Scale",
+            code: `--font-size-sm: 14px;
+--font-size-base: 16px;
+--font-size-lg: 18px;
+--font-size-xl: 20px;
+--line-height-base: 1.5;`,
+            description: "Define a modular type scale",
+          },
+        ],
       },
       spacing: {
         explanation:
@@ -185,6 +465,32 @@ export class AIExplanationService {
         ],
         impact:
           "Poor spacing can lead to accidental clicks and user frustration.",
+        codeSuggestions: [
+          {
+            language: "css",
+            title: "Consistent Spacing",
+            code: `/* 8-point grid system */
+padding: 16px;
+gap: 8px;
+margin-bottom: 24px;
+
+/* Touch-friendly targets */
+min-height: 44px;
+min-width: 44px;`,
+            description: "Use the 8-point grid for spacing",
+          },
+          {
+            language: "tokens",
+            title: "Spacing Scale",
+            code: `--space-xs: 4px;
+--space-sm: 8px;
+--space-md: 16px;
+--space-lg: 24px;
+--space-xl: 32px;
+--space-2xl: 48px;`,
+            description: "Define spacing tokens",
+          },
+        ],
       },
       accessibility: {
         explanation:
@@ -197,6 +503,38 @@ export class AIExplanationService {
         ],
         impact:
           "Users with disabilities may be unable to use this feature, violating accessibility standards.",
+        codeSuggestions: [
+          {
+            language: "css",
+            title: "Accessibility Styles",
+            code: `/* Keyboard focus indicators */
+:focus-visible {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+}`,
+            description: "Add accessible styles",
+          },
+          {
+            language: "figma",
+            title: "Figma A11y Checklist",
+            code: `✓ Add alt text to images
+✓ Use semantic hierarchy (H1-H6)
+✓ Name layers descriptively
+✓ Set proper text roles
+✓ Use Auto Layout for structure
+✓ Group related elements`,
+            description: "Configure Figma for accessibility",
+          },
+        ],
       },
     };
 
@@ -207,7 +545,14 @@ export class AIExplanationService {
         violation.tenetTitle.toLowerCase().includes(k)
     );
 
-    const defaultFallback = {
+    const matchedFallback = key ? fallbacks[key] : null;
+
+    if (matchedFallback) {
+      return matchedFallback;
+    }
+
+    // Default fallback with generic code suggestions
+    return {
       explanation: `The "${violation.tenetTitle}" principle helps ensure your design is user-friendly and accessible. ${violation.message}`,
       suggestions: [
         "Review the specific design principle guidelines",
@@ -217,9 +562,8 @@ export class AIExplanationService {
       ],
       impact:
         "This issue may negatively impact user experience, accessibility, and overall design quality.",
+      codeSuggestions: this.generateDefaultCodeSuggestions(request),
     };
-
-    return (key ? fallbacks[key] : null) || defaultFallback;
   }
 
   isConfigured(): boolean {
